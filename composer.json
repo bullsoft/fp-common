@@ -2,7 +2,7 @@
     "name": "bullsoft/falconplus-common",
     "require": {
         "composer/installers": "~1.0"
-    }
+    },
     "extra": {
         "installer-name": "common",
         "installer-paths": {
