@@ -139,7 +139,7 @@ class ServerTask extends \Phalcon\CLI\Task
                 $newItem ['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
 
                 $pid = file_get_contents($pidPath);
-                
+
                 $output = [];
                 exec("ps -p {$pid}", $output);
                 $newItem['running_status'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
@@ -148,7 +148,11 @@ class ServerTask extends \Phalcon\CLI\Task
             }
         }
 
-        $this->cli->table($modules);
+        if(empty($modules)) {
+            $this->cli->tab()->out("空！空即是色！放开那个女孩...")->br();
+        } else {
+            $this->cli->table($modules);
+        }
     }
 
     public function helpAction()
@@ -161,6 +165,7 @@ class ServerTask extends \Phalcon\CLI\Task
         $this->cli->out('<light_yellow>使用方式:<light_yellow>');
         $this->cli->out('    - 启动: /path/to/fp-devtool server start <light_red>moduleName</light_red> <blue>[listenPort]</blue>');
         $this->cli->out('    - 关闭: /path/to/fp-devtool server stop <light_red>moduleName</light_red>');
+        $this->cli->out('    - 列表: /path/to/fp-devtool server list');
     }
 
 }

@@ -63,4 +63,16 @@ class ModuleTask extends \Phalcon\CLI\TASK
         ]);
         return ;
     }
+
+    public function helpAction()
+    {
+        $this->cli->out('<light_yellow>帮助:<light_yellow>');
+        $this->cli->out('    Phalcon+模块工具');
+
+        $this->cli->br();
+
+        $this->cli->out('<light_yellow>使用方式:<light_yellow>');
+        $this->cli->out('    - 创建: /path/to/fp-devtool module create');
+        $this->cli->out('    - 列表: /path/to/fp-devtool module list');
+    }
 }
