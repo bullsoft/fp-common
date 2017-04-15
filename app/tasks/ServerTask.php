@@ -116,6 +116,41 @@ class ServerTask extends \Phalcon\CLI\Task
 
     }
 
+    public function listAction()
+    {
+        $this->cli->br()->info("您的Phalcon+服务列表：");
+        $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
+        $contents = $filesystem->listContents();
+        $modules = [];
+        foreach($contents as $item) {
+            if($item['type'] == "file") continue;
+            $module = $item['basename'];
+            $pidPath = "{$module}/server.pid";
+            if($filesystem->has($pidPath)) {
+                $configPath = "{$module}/app/config/" . APP_ENV . ".php";
+                if(!$filesystem->has($configPath)) {
+                    $configPath = "{$module}/app/config/config.php";
+                }
+                $config = new \Phalcon\Config($this->di->getBootstrap()->load(APP_ROOT_DIR . $configPath));
+                $newItem = [];
+                $newItem['name'] = "<light_green>".$config->application->name. "</light_green>";
+                $newItem['namespace'] = $config->application->ns;
+                $newItem['mode'] = $config->application->mode;
+                $newItem ['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
+
+                $pid = file_get_contents($pidPath);
+                
+                $output = [];
+                exec("ps -p {$pid}", $output);
+                $newItem['running_status'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
+
+                $modules[] = $newItem;
+            }
+        }
+
+        $this->cli->table($modules);
+    }
+
     public function helpAction()
     {
         $this->cli->out('<light_yellow>帮助:<light_yellow>');
@@ -127,4 +162,5 @@ class ServerTask extends \Phalcon\CLI\Task
         $this->cli->out('    - 启动: /path/to/fp-devtool server start <light_red>moduleName</light_red> <blue>[listenPort]</blue>');
         $this->cli->out('    - 关闭: /path/to/fp-devtool server stop <light_red>moduleName</light_red>');
     }
+
 }

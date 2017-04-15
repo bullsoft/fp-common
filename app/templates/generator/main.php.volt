@@ -1,8 +1,13 @@
+date_default_timezone_set('Asia/Shanghai');
 ini_set("memory_limit", "4G");
+require_once(dirname(dirname(__DIR__)) . "/vendor/autoload.php");
 
-$bootstrap = new \PhalconPlus\Bootstrap(dirname(dirname(__DIR__)));
-
+$bootstrap = new \PhalconPlus\Bootstrap(dirname(__DIR__));
 $di = new \Phalcon\DI\FactoryDefault\CLI();
+
+$di->setShared('cli', function(){
+    return new \League\CLImate\CLImate();
+});
 
 $arguments = array();
 foreach($argv as $k => $arg) {
@@ -14,4 +19,5 @@ foreach($argv as $k => $arg) {
         $arguments['params'][] = $arg;
     }
 }
+
 $bootstrap->execTask($arguments, $di);

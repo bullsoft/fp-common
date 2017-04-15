@@ -1,5 +1,4 @@
-<?php
-namespace PhalconPlus\DevTools;
+namespace {{rootNs}}\{{moduleName}};
 
 class Task extends \PhalconPlus\Base\AbstractModule
 {
@@ -13,8 +12,8 @@ class Task extends \PhalconPlus\Base\AbstractModule
 
     public function registerServices()
     {
+        // get di
         $di = $this->di;
-
         $di->set('dispatcher', function() use ($di) {
             $dispatcher = new \Phalcon\Cli\Dispatcher();
             $dispatcher->setDefaultNamespace(__NAMESPACE__."\\Tasks\\");

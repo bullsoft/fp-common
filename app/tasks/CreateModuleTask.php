@@ -7,8 +7,8 @@ class CreateModuleTask extends \Phalcon\CLI\Task
 {
     protected $modes = [
         "Web" => "Module",
-        "Cli" => "Task",
         "Srv" => "Srv",
+        "Cli" => "Task",
     ];
 
     public function mainAction()
@@ -27,7 +27,6 @@ class CreateModuleTask extends \Phalcon\CLI\Task
             return !empty($response);
         });
         $name = $input->prompt();
-
 
         // ------ 获取项目命名空间 -------
         $input = $this->cli->input("<green><bold>Step 2 </bold></green>请输入该模块的根命名空间，如'UserCenter'" . PHP_EOL. "[Enter]:");
@@ -76,14 +75,21 @@ class CreateModuleTask extends \Phalcon\CLI\Task
 
         $dirs = [
             "app/config",
-            "public"
         ];
+
         $files = [
-            "public/index.php",
             "app/config/dev.php",
             "app/" . $modeMap[$mode] . ".php",
-            ".htrouter.php",
         ];
+
+        if($mode == "Cli") {
+            $dirs[] = "bin";
+            $files[] = "bin/main.php";
+        } else {
+            $dirs[]  = "public";
+            $files[] = "public/index.php";
+            $files[] =  ".htrouter.php";
+        }
 
         if($mode == "Web") {
             $dirs[] = "app/controllers";
@@ -93,13 +99,18 @@ class CreateModuleTask extends \Phalcon\CLI\Task
         } elseif ($mode == "Srv") {
             $dirs[] = "app/services";
             $dirs[] = "app/tasks";
+            $dirs[] = "app/tasks/tasks";
             $dirs[] = "app/models";
             $files[] = "app/services/DummyService.php";
             $files[] = "app/tasks/init.php";
+            $files[] = "app/tasks/tasks/HelloTask.php";
+        } elseif($mode == "Cli") {
+            $dirs[] = "app/tasks";
+            $files[] = "app/tasks/HelpTask.php";
         }
 
         // 假装在做事情
-        usleep(1000000);
+        usleep(100000);
         $progress->advance(20); // Adds 10 to the current progress
 
         $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
@@ -109,7 +120,7 @@ class CreateModuleTask extends \Phalcon\CLI\Task
         }
 
         // 假装在做事情
-        usleep(1500000);
+        usleep(150000);
         $progress->advance(30); // Adds 10 to the current progress
 
         $viewPath = "common/app/templates/";
@@ -119,7 +130,7 @@ class CreateModuleTask extends \Phalcon\CLI\Task
 
         $di = $this->getDI();
 
-        usleep(500000);
+        usleep(50000);
         $progress->advance(10);
 
         // 初始化模板
@@ -141,28 +152,29 @@ class CreateModuleTask extends \Phalcon\CLI\Task
         ));
 
         // 假装在做事情
-        usleep(1000000);
+        usleep(100000);
         $progress->advance(20);
         // 生成文件
         foreach ($files as $file) {
             $fileName = basename($file);
             // echo $fileName . PHP_EOL;
+
+            $view->setVar("rootNs", $ns);
+            $view->setVar("module", $module);
+            $view->setVar("mode", $mode);
+            $view->setVar("moduleName", ucfirst($module));
+
             $view->start()
                 ->render("generator", $fileName)
                 ->finish();
 
-            $view->setVar("rootNs", $ns);
-
-            $view->setVar("module", $module);
-            $view->setVar("mode", $mode);
-            $view->setVar("moduleName", ucfirst($module));
             $filesystem->write($module."/".$file, "<?php\n".$view->getContent());
         }
 
         $filesystem->deleteDir($cachePath);
 
         // 假装在做事情
-        usleep(2000000);
+        usleep(200000);
 
         $progress->advance(20);
         $this->cli->br()->info("... 恭喜，模块{$module}创建成功！");
