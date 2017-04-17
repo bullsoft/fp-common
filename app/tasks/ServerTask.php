@@ -18,6 +18,7 @@ class ServerTask extends \Phalcon\CLI\Task
     {
         if(empty($argv)) {
             $this->cli->error("致命错误：请指定您要运行的模块！");
+            exit(3);
         }
         // 获取模块名
         $module = $argv[0];
@@ -95,6 +96,7 @@ class ServerTask extends \Phalcon\CLI\Task
     {
         if(empty($argv)) {
             $this->cli->error("致命错误：请指定您要运行的模块！");
+            exit(3);
         }
         $module = $argv[0];
 
