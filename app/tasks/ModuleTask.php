@@ -11,6 +11,15 @@ class ModuleTask extends \Phalcon\CLI\TASK
 
     public function mainAction()
     {
+        $this->dispatcher->forward([
+            "controller" => "module",
+            "action" => "help"
+        ]);
+        return ;
+    }
+
+    public function listAction()
+    {
         $this->cli->br()->info("您的Phalcon+模块列表：");
         $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
         $contents = $filesystem->listContents();
@@ -36,7 +45,14 @@ class ModuleTask extends \Phalcon\CLI\TASK
                 if($filesystem->has($pidPath)) {
                     $pid = file_get_contents($pidPath);
                     $output = [];
-                    exec("ps -p {$pid}", $output);
+
+                    $phpOS = strtolower(PHP_OS);
+                    if($phpOS == "darwin") {
+                        exec("ps -p {$pid}", $output);
+                    } elseif($phpOS == "linux") {
+                        exec("ps -P {$pid}", $output);
+                    }
+
                     $newItem['running_status'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
                 }
             }
@@ -44,15 +60,6 @@ class ModuleTask extends \Phalcon\CLI\TASK
         }
 
         $this->cli->table($modules);
-    }
-
-    public function listAction()
-    {
-        $this->dispatcher->forward([
-            "controller" => "module",
-            "action" => "main"
-        ]);
-        return ;
     }
 
     public function createAction()

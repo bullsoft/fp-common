@@ -5,6 +5,15 @@ use League\Flysystem\Adapter\Local as LocalAdapter;
 
 class ServerTask extends \Phalcon\CLI\Task
 {
+    public function mainAction()
+    {
+        $this->dispatcher->forward([
+            "controller" => "server",
+            "action" => "help"
+        ]);
+        return ;
+    }
+
     public function startAction($argv)
     {
         if(empty($argv)) {
@@ -41,7 +50,7 @@ class ServerTask extends \Phalcon\CLI\Task
         );
 
         $cwd = $moduleDir;
-        $cmd = escapeshellcmd("php -S localhost:{$port} -t public/ .htrouter.php") . " & echo $! > {$moduleDir}/server.pid";
+        $cmd = escapeshellcmd("php -S 0.0.0.0:{$port} -t public/ .htrouter.php") . " & echo $! > {$moduleDir}/server.pid";
 
         /*
           $procStatus =
@@ -141,8 +150,14 @@ class ServerTask extends \Phalcon\CLI\Task
                 $pid = file_get_contents($pidPath);
 
                 $output = [];
-                exec("ps -p {$pid}", $output);
-                $newItem['running_status'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
+
+                $phpOS = strtolower(PHP_OS);
+                if($phpOS == "darwin") {
+                    exec("ps -p {$pid}", $output);
+                } elseif($phpOS == "linux") {
+                    exec("ps -P {$pid}", $output);
+                }
+                $newItem['running_command'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
 
                 $modules[] = $newItem;
             }

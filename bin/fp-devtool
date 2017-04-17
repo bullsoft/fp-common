@@ -11,6 +11,13 @@ $di->setShared('cli', function(){
     return new \League\CLImate\CLImate();
 });
 
+$phpOS = strtolower(PHP_OS);
+
+if(substr($phpOS, 0, 3) == "win") {
+    $this->cli->backgroundRed("对不起，Phalcon+命令行工具暂不支持Windows操作系统，请谅解！");
+    exit(111);
+}
+
 $arguments = array();
 foreach($argv as $k => $arg) {
     if($k == 1) {

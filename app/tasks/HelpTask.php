@@ -29,6 +29,12 @@ class HelpTask extends \Phalcon\CLI\Task
                 "command" => '<light_green>module list</light_green>',
                 "args" => '-',
                 'description' => "Phalcon+模块列表",
+                'alias' => "-",
+            ],
+            [
+                "command" => '<light_green>module help</light_green>',
+                "args" => '-',
+                'description' => "Phalcon+模块工具集帮助手册",
                 'alias' => "module",
             ],
             [
@@ -49,18 +55,23 @@ class HelpTask extends \Phalcon\CLI\Task
                 'description' => "Phalcon+模块服务器列表",
                 'alias' => "-",
             ],
-
             [
-                "command" => '<light_green>create-model</light_green>',
+                "command" => '<light_green>server help</light_green>',
                 "args" => '-',
-                'description' => "引导创建Phalcon+ORM模型",
-                'alias' => "-",
+                'description' => "Phalcon+模块服务器工具集帮助手册",
+                'alias' => "server",
             ],
             [
-                "command" => '<light_green>create-exception</light_green>',
+                "command" => '<light_green>model create</light_green>',
                 "args" => '-',
-                'description' => "引导创建Phalcon+异常",
-                'alias' => "-",
+                'description' => "引导创建Phalcon+ORM模型",
+                'alias' => "create-model",
+            ],
+            [
+                "command" => '<light_green>exception create</light_green>',
+                "args" => '-',
+                'description' => "引导创建Phalcon+异常类",
+                'alias' => "create-exception",
             ],
             [
                 "command" => '<light_green>help</light_green>',
