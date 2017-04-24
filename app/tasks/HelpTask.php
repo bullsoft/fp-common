@@ -68,6 +68,24 @@ class HelpTask extends \Phalcon\CLI\Task
                 'alias' => "create-model",
             ],
             [
+                "command" => '<light_green>model list</light_green>',
+                "args" => 'arg1: $moduleName',
+                'description' => "查看指定模块的Phalcon+模型列表",
+                'alias' => "-",
+            ],
+            [
+                "command" => '<light_green>model find</light_green>',
+                "args" => 'arg1: $moduleName, arg2: $modelName, arg3: $condition',
+                'description' => "查询Phalcon+模型的数据列表",
+                'alias' => "-",
+            ],
+            [
+                "command" => '<light_green>model help</light_green>',
+                "args" => '-',
+                'description' => "查看Phalcon+模型工具集帮助文档",
+                'alias' => "model",
+            ],
+            [
                 "command" => '<light_green>exception create</light_green>',
                 "args" => '-',
                 'description' => "引导创建Phalcon+异常类",
