@@ -47,7 +47,7 @@ class ServerTask extends \Phalcon\CLI\Task
         $descriptorSpec = array(
             0 => array("pipe", "r"),  // 标准输入，子进程从此管道中读取数据
             1 => array("file", "{$moduleDir}/access.log", "a"),  // 标准输出，子进程向此管道中写入数据
-            2 => array("file", "{$moduleDir}/access.log", "a")   // 标准错误，写入到一个文件
+            2 => array("pipe", "w"),
         );
 
         $cwd = $moduleDir;
@@ -81,7 +81,15 @@ class ServerTask extends \Phalcon\CLI\Task
             $this->cli->backgroundRed()->out("致命错误：进程启动失败！");
             exit(3);
         }
-
+        $errMsg = stream_get_contents($pipes[2]);
+        if(!empty($errMsg)) {
+            $this->cli->backgroundRed()->out(" ... 严重错误 ... ");
+            $this->cli->out($errMsg);
+            proc_close($proc);
+            unlink($moduleDir."/server.pid");
+            $this->cli->error("... 启动失败，请仔细检查后重试!");
+            exit(4);
+        }
         $procStatus = proc_get_status($proc);
 
         $this->cli->backgroundLightBlue()->out("... 正在执行... ");
