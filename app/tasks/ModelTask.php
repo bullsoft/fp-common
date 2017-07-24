@@ -59,11 +59,22 @@ class ModelTask extends \Phalcon\CLI\Task
 
         $newList = [];
         foreach($list as $item) {
-            $tmp = [];
-            $tmp['model_name'] = '<light_green>' . $item['filename'] . '</light_green>';
-            $tmp['directory'] = $item['dirname'];
-            $tmp['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
-            $newList[] = $tmp;
+            if($item["type"] == "dir") {
+                $subList = $filesystem->listContents($modelPath. $item["filename"] . "/");
+                foreach($subList as $subItem) {
+                    $tmp = [];
+                    $tmp['model_name'] =  '<light_red>' . $item['filename'] . '</light_red>' . '<light_green>' . '\\' . $subItem['filename'] . '</light_green>';
+                    $tmp['directory'] = $subItem['dirname'];
+                    $tmp['create_time'] = date("Y-m-d H:i:s", $subItem['timestamp']);
+                    $newList[] = $tmp;
+                }
+            } else {
+                $tmp = [];
+                $tmp['model_name'] = '<light_green>' . $item['filename'] . '</light_green>';
+                $tmp['directory'] = $item['dirname'];
+                $tmp['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
+                $newList[] = $tmp;
+            }
         }
 
         $this->cli->table($newList);
