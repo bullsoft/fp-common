@@ -97,7 +97,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
         $padding = $this->cli->padding(26);
 
         foreach($tables as $table) {
-            $className = \Phalcon\Text::camelize($table);
+            $className = \Phalcon\Text::camelize($table) . "Model";
             $filePath = $modelDir. $className . $bootstrap::PHP_EXT;
             $fullClassName = $namespace . '\\' . $className;
 
