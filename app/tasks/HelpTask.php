@@ -13,7 +13,7 @@ class HelpTask extends \Phalcon\CLI\Task
 
     public function mainAction()
     {
-        $this->cli->br()->info("Phalcon+ 命令行工具 (Ver. 1.0.0)");
+        $this->cli->br()->info("Phalcon+ 命令行工具 (Ver. ".$this->config->version.")");
         $this->cli->br()->out("命令使用方式：");
         $this->cli->info("  <white>...:APP_ROOT$</white> ./common/bin/fp-devtool command arg1 arg2 arg3");
         $this->cli->br()->out('<yellow>可用命令如下: </yellow>');
