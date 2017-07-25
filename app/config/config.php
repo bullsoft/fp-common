@@ -6,5 +6,5 @@ return [
         "mode"  => "Cli",
         "logFilePath" => "/tmp/fp-devtool.log",
     ],
-    'version' => "1.0.6",
+    'version' => "1.0.7",
 ];
