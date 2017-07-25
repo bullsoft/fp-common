@@ -136,14 +136,15 @@ class CreateModuleTask extends \Phalcon\CLI\Task
         // 初始化模板
         $view = new \Phalcon\Mvc\View();
         $view->setDI($this->getDI());
-        $view->setViewsDir($viewPath);
+        $view->setViewsDir(APP_ROOT_DIR . $viewPath);
+
         $view->registerEngines(array(
             ".volt" => function() use ($view, $di, $cachePath) {
                 $volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
                 $volt->setOptions(array(
-                    "compiledPath"      => $cachePath,
+                    "compiledPath"      => APP_ROOT_DIR . $cachePath,
                     "compiledExtension" => ".compiled",
-                    "compiledAlways"    => false
+                    "compiledAlways"    => true
                 ));
                 $compiler = $volt->getCompiler();
                 $compiler->addExtension(new \PhalconPlus\Volt\Extension\PhpFunction());
@@ -157,16 +158,15 @@ class CreateModuleTask extends \Phalcon\CLI\Task
         // 生成文件
         foreach ($files as $file) {
             $fileName = basename($file);
-            // echo $fileName . PHP_EOL;
 
             $view->setVar("rootNs", $ns);
             $view->setVar("module", $module);
             $view->setVar("mode", $mode);
             $view->setVar("moduleName", ucfirst($module));
 
-            $view->start()
-                ->render("generator", $fileName)
-                ->finish();
+            $view->start();
+            $view->render("generator", $fileName);
+            $view->finish();
 
             $filesystem->write($module."/".$file, "<?php\n".$view->getContent());
         }

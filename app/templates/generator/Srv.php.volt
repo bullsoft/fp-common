@@ -24,8 +24,14 @@ class Srv extends PlusModule
         // get config
         $config = $di->get('config');
 
-        // register db service
+        // register db write service
         $di->setShared('db', function() use ($di) {
+            $mysql = new \PhalconPlus\Db\Mysql($di, "db");
+            return $mysql->getConnection();
+        });
+
+        // register db read service
+        $di->setShared('dbRead', function() use ($di) {
             $mysql = new \PhalconPlus\Db\Mysql($di, "db");
             return $mysql->getConnection();
         });
