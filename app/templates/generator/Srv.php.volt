@@ -13,6 +13,12 @@ class Srv extends PlusModule
             __NAMESPACE__.'\\Tasks'    => __DIR__.'/tasks/tasks/',
             "Common\\Protos"           => APP_ROOT_COMMON_DIR.'/protos/',
         ))->register();
+
+        // load composer library
+        $composer = APP_ROOT_DIR . "/vendor/autoload.php";
+        if(file_exists($composer)) {
+            require_once $composer;
+        }
     }
 
     public function registerServices()

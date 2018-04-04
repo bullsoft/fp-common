@@ -11,9 +11,16 @@ class Module extends PlusModule
         $loader = new \Phalcon\Loader();
         $loader->registerNamespaces(array(
             __NAMESPACE__.'\\Controllers' => __DIR__.'/controllers/',
+            __NAMESPACE__.'\\Controllers\\Apis' => __DIR__.'/controllers/apis/',
             __NAMESPACE__.'\\Models'      => __DIR__.'/models/',
             "Common\\Protos"              => APP_ROOT_COMMON_DIR.'/protos/',
         ))->register();
+
+        // load composer library
+        $composer = APP_ROOT_DIR . "/vendor/autoload.php";
+        if(file_exists($composer)) {
+            require_once $composer;
+        }
     }
     
     public function registerServices()
@@ -25,16 +32,41 @@ class Module extends PlusModule
         // get config
         $config = $di->get('config');
 
+        $router = $di->getShared("router");
+        if($router instanceof \Phalcon\Mvc\Router) {
+            $router->add('/apis/:controller/([a-zA-Z0-9_\-]+)/:params', array(
+                'controller' => 1,
+                'action'     => 2,
+                'params'     => 3,
+                'namespace'  => __NAMESPACE__ . "\\Controllers\\Apis",
+            ))->convert('action', function ($action) {
+                // transform action from foo-bar -> foo_bar
+                $a = str_replace('-', '_', $action);
+                // transform action from foo_bar -> fooBar
+                return lcfirst(\Phalcon\Text::camelize($a));
+            });
+        }
+
         // register a dispatcher
         $di->has("dispatched") || $di->set('dispatcher', function () use ($di) {
             $evtManager = $di->getShared('eventsManager');
             $evtManager->attach("dispatch:beforeException", function ($event, $dispatcher, $exception) {
+                if(rtrim($dispatcher->getNamespaceName(), "\\") == __NAMESPACE__ ."\\Controllers\\Apis") {
+                    throw $exception;
+                }
                 switch ($exception->getCode()) {
                     case \Phalcon\Mvc\Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
                     case \Phalcon\Mvc\Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
                         $dispatcher->forward(array(
                             'controller' => 'error',
                             'action'     => 'show404'
+                        ));
+                        return false;
+                    default:
+                        $dispatcher->forward(array(
+                            'controller' => 'error',
+                            'action'     => 'showUnknown',
+                            "params"     => [$exception],
                         ));
                         return false;
                 }

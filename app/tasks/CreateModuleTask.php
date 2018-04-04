@@ -93,9 +93,11 @@ class CreateModuleTask extends \Phalcon\CLI\Task
 
         if($mode == "Web") {
             $dirs[] = "app/controllers";
+            $dirs[] = "app/controllers/apis";
             $dirs[] = "app/views/index";
             $files[] = "app/controllers/IndexController.php";
             $files[] = "app/controllers/ErrorController.php";
+            $files[] = "app/controllers/apis/DemoController.php";
         } elseif ($mode == "Srv") {
             $dirs[] = "app/services";
             $dirs[] = "app/tasks";
