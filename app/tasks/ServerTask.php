@@ -81,7 +81,12 @@ class ServerTask extends \Phalcon\CLI\Task
             $this->cli->backgroundRed()->out("致命错误：进程启动失败！");
             exit(3);
         }
+
+        stream_set_blocking($pipes[0], 0);
+        stream_set_blocking($pipes[2], 0);
+
         $errMsg = stream_get_contents($pipes[2]);
+
         if(!empty($errMsg)) {
             $this->cli->backgroundRed()->out(" ... 严重错误 ... ");
             $this->cli->out($errMsg);
@@ -162,6 +167,7 @@ class ServerTask extends \Phalcon\CLI\Task
                 $output = [];
 
                 $phpOS = strtolower(PHP_OS);
+
                 if($phpOS == "darwin") {
                     exec("ps -p {$pid}", $output);
                 } elseif($phpOS == "linux") {
