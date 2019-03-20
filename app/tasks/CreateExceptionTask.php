@@ -55,7 +55,7 @@ class CreateExceptionTask extends \Phalcon\CLI\Task
         foreach ($enumExceptionCode as $className => $code) {
             $replacement = [];
             $replacement["namespace"] = rtrim($exceptionNS, "\\");
-            $replacement["className"] = \Phalcon\Text::camelize($className);
+            $replacement["className"] = \Phalcon\Text::camelize($className) . "Exception";
             $replacement["code"] = $code;
 
             $eCode = new $enumExceptionClass($code);
