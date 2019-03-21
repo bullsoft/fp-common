@@ -62,7 +62,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
         // 依赖该模块
         $bootstrap->dependModule($module);
 
-        $moduleConfig = $this->getDI()->getModuleConfig();
+        $moduleConfig = $bootstrap->getModuleDef($module)->getConfig();
 
         $namespace = $moduleConfig->application->ns . 'Models';
         $modelDir = APP_ROOT_DIR . $module . "/app/models/";
@@ -98,7 +98,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
 
         foreach($tables as $table) {
             $className = \Phalcon\Text::camelize($table) . "Model";
-            $filePath = $modelDir. $className . $bootstrap::PHP_EXT;
+            $filePath = $modelDir. $className . \PhalconPlus\Enum\Sys::EXT;
             $fullClassName = $namespace . '\\' . $className;
 
             $padding->label("  " . $fullClassName)->result($filePath);
@@ -147,7 +147,11 @@ class CreateModelTask extends \Phalcon\CLI\Task
 
             foreach($connection->describeColumns($table) as $columnObj) {
                 $columnName = $columnObj->getName();
-                $camelizeColumnName = lcfirst(\Phalcon\Text::camelize($columnName));
+                if(false !== strpos($columnName, "_")) {
+                    $camelizeColumnName = lcfirst(\Phalcon\Text::camelize($columnName));
+                } else {
+                    $camelizeColumnName = $columnName;
+                }
                 $onConstructBody .= '$this->'.$camelizeColumnName
                                  . ' = ' . var_export($columnsDefaultMap[$columnName], true)
                                  . ";\n";
