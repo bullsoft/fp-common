@@ -6,7 +6,7 @@
  * Time: 18:41
  */
 
-namespace Common\Protos;
+namespace PhalconPlus\Com\Protos;
 use \PhalconPlus\Base\ProtoBuffer;
 
 class ProtoBase extends ProtoBuffer

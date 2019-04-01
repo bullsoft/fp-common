@@ -32,6 +32,7 @@ class ModuleTask extends \Phalcon\CLI\TASK
             if(!$filesystem->has($configPath)) {
                 $configPath = "{$module}/app/config/config.php";
             }
+            if(!$filesystem->has($configPath)) continue;
             $newItem = [];
             $config = new \Phalcon\Config($this->di->getBootstrap()->load(APP_ROOT_DIR . $configPath));
 

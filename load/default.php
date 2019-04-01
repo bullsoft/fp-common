@@ -56,6 +56,13 @@ if (!function_exists("getDI")) {
     }
 }
 
+if (!function_exists("di")) {
+    function di()
+    {
+        return \Phalcon\DI::getDefault();
+    }
+}
+
 if (!function_exists("getRealSql")) {
     function getRealSql(\Phalcon\Db\Adapter\Pdo\Mysql $db)
     {

@@ -1,5 +1,5 @@
 <?php
-namespace Common\Protos;
+namespace PhalconPlus\Com\Protos;
 use \PhalconPlus\Enum\Exception as EnumException;
 use \PhalconPlus\Assert\Assertion as Assert;
 
@@ -25,13 +25,8 @@ class EnumExceptionCode extends EnumException
      * 请不要使用重复异常码
      */
     const UNKNOWN = 10000;
-    const USER_NOT_EXISTS = 10001;
-    const AUTH_FAILED = 10002;
-    const NEED_LOGIN = 10003;
-    const USER_ALREADY_EXISTS = 10004;
-
-    const SYSTEM_BUSY = 20000;
-    const FORM_INPUT_INVALID = 20001;
+    const SYSTEM_BUSY = 10001;
+    const FORM_INPUT_INVALID = 10002;
 
     const PRODUCT_NOT_EXISTS = 30001;
     const PRODUCT_SOLD_OUT = 30002;
@@ -41,16 +36,6 @@ class EnumExceptionCode extends EnumException
         self::UNKNOWN => [
             "message" => "未知错误",
             "level" => EnumLoggerLevel::ERROR,
-        ],
-        
-        self::USER_NOT_EXISTS => [
-            "message" => "用户(%s)不存在，请核实后再试",
-            "level" =>  EnumLoggerLevel::INFO,
-        ],
-
-        self::NEED_LOGIN => [
-            "message" => "需要登录",
-            "level" => EnumLoggerLevel::INFO,
         ],
 
         self::SYSTEM_BUSY => [
@@ -62,26 +47,11 @@ class EnumExceptionCode extends EnumException
             "message" => "__DATA__%s",
             "level" => EnumLoggerLevel::INFO
         ],
-
-        self::USER_ALREADY_EXISTS => [
-            "message" => "用户资料(%s)已存在",
-            "level"   => EnumLoggerLevel::INFO,
-        ],
-
-        self::PRODUCT_NOT_EXISTS => [
-            "message" => "商品不存在",
-            "level"   => EnumLoggerLevel::ERROR,
-        ],
-
-        self::PRODUCT_SOLD_OUT => [
-            "message" => "商品已售空",
-            "level"   => EnumLoggerLevel::ERROR,
-        ],
         
     ];
    
     public static function exceptionClassPrefix()
     {
-        return __NAMESPACE__ . "\\Exception\\";
+        return __NAMESPACE__ . "\\Exceptions\\";
     }
 }

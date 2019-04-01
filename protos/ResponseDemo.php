@@ -1,5 +1,5 @@
 <?php
-namespace Common\Protos;
+namespace PhalconPlus\Com\Protos;
 use \PhalconPlus\Base\ProtoBuffer;
 
 class ResponseDemo extends ProtoBuffer

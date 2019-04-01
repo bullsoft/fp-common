@@ -6,7 +6,8 @@ class CreateExceptionTask extends \Phalcon\CLI\Task
     protected $tokens = array(
         "<<<namespace>>>",
         "<<<className>>>",
-        "<<<code>>>" ,
+        "<<<parentClassName>>>",
+        "<<<code>>>",
         "<<<message>>>",
         "<<<level>>>",
     );
@@ -44,18 +45,24 @@ class CreateExceptionTask extends \Phalcon\CLI\Task
         $enumExceptionCode = $enumExceptionClass::validValues(true);
         $exceptionNS = $enumExceptionClass::exceptionClassPrefix();
 
-        $dir = APP_ROOT_DIR . $path ."/Exception/";
+        $dir = APP_ROOT_DIR . $path ."/Exceptions/";
         if(!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
 
         $classTemplate = file_get_contents(APP_MODULE_DIR . "app/templates/exception/default.php.volt");
 
+        $parentClass = "\PhalconPlus\Com\Protos\ExceptionBase";
+        if (!class_exists($parentClass)) {
+            $parentClass = "\PhalconPlus\Base\Exception";
+        }
+
         $padding = $this->cli->padding(18);
         foreach ($enumExceptionCode as $className => $code) {
             $replacement = [];
             $replacement["namespace"] = rtrim($exceptionNS, "\\");
-            $replacement["className"] = \Phalcon\Text::camelize($className);
+            $replacement["className"] = \Phalcon\Text::camelize($className) . "Exception";
+            $replacement["parentClassName"] = $parentClass;
             $replacement["code"] = $code;
 
             $eCode = new $enumExceptionClass($code);

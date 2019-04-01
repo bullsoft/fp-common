@@ -8,6 +8,7 @@ class Task extends \PhalconPlus\Base\AbstractModule
         $loader = new \Phalcon\Loader();
         $loader->registerNamespaces(array(
             __NAMESPACE__.'\\Tasks' => __DIR__.'/tasks/',
+            "PhalconPlus\\Com\\Protos" => APP_MODULE_DIR."/protos/",
         ))->register();
     }
 

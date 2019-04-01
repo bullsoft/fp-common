@@ -1,5 +1,5 @@
 <?php
-namespace Common\Protos;
+namespace PhalconPlus\Com\Protos;
 use \PhalconPlus\Enum\AbstractEnum;
 
 class EnumLoggerLevel extends AbstractEnum

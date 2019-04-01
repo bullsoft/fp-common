@@ -14,6 +14,7 @@ use League\Flysystem\Adapter\Local as LocalAdapter;
 
 class CreateModelTask extends \Phalcon\CLI\Task
 {
+
     public function mainAction()
     {
         $this->cli->info('现在开始引导您创建Phalcon+ ORM模型...');
@@ -32,42 +33,72 @@ class CreateModelTask extends \Phalcon\CLI\Task
         $name = $input->prompt();
 
         // ------ 获取DB连接服务名 -------
-        $input = $this->cli->input("<green><bold>Step 2 </bold></green>请输入DI容器中连接DB的服务名称，如'dbWrite'" . PHP_EOL. "[Enter]:");
+        $input = $this->cli->input("<green><bold>Step 2 </bold></green>请输入DI容器中连接DB的服务（具有写权限）的名称，如'db'" . PHP_EOL. "[Enter]:");
         $input->accept(function($response) {
             return !empty($response);
         });
         $dbService = $input->prompt();
 
+        // --------- 是否使用数据库名作为命名空间的一部分？ ---------------
+        $useDbAsNamespace = false;
+        $input = $this->cli->confirm('<green><bold>Step 3 </bold></green>请确认是否使用数据库名作为模型命名空间的一部分?' . PHP_EOL . "[Enter]:");
+        // Continue? [y/n]
+        if ($input->confirmed()) {
+            $useDbAsNamespace = true;
+        }
+        // ------ 获取DB名称 -------
+        //$input = $this->cli->input("<green><bold>Step 3 </bold></green>请输入数据库名称（如需支持多数据库访问），如：'Acme'" . PHP_EOL. "[Enter]:");
+        //$dbName = trim($input->prompt());
+
         $this->cli->br()->info('正在为您生成代码 ...');
 
-        $this->generate($name, $dbService);
+        $this->generate($name, $dbService, $useDbAsNamespace);
     }
 
-    protected function generate($module, $dbService)
+    protected function generate($module, $dbService, $useDbAsNamespace)
     {
         $bootstrap = $this->getDI()->get('bootstrap');
 
         // 依赖该模块
         $bootstrap->dependModule($module);
 
-        $moduleConfig = $this->getDI()->getModuleConfig();
+        $moduleConfig = $bootstrap->getModuleDef($module)->getConfig();
 
         $namespace = $moduleConfig->application->ns . 'Models';
         $modelDir = APP_ROOT_DIR . $module . "/app/models/";
+
+        if($useDbAsNamespace == true) {
+            $dbName = $this->config->{$dbService}->dbname;
+            $dbName = \Phalcon\Text::camelize($dbName);
+            $namespace .= "\\" . $dbName;
+            $modelDir .= $dbName . "/";
+        }
 
         // 如果models目录不存在，则创建它
         if(!is_dir($modelDir)) {
             mkdir($modelDir, 0777, true);
         }
 
+        $filePath = $modelDir . "ModelBase.php";
+        if(!is_file($filePath)) {
+            $modelBaseTemplate = file_get_contents(APP_MODULE_DIR . "app/templates/generator/ModelBase.php.volt");
+            $tokens = [
+                "<<<namespace>>>",
+            ];
+            $replacements = [
+                $namespace
+            ];
+            $modelBaseClass = str_replace($tokens, $replacements, $modelBaseTemplate);
+            file_put_contents($filePath, "<?php\n" . $modelBaseClass);
+        }
         $connection = $this->di->get($dbService);
         $tables = $connection->listTables();
 
         $padding = $this->cli->padding(26);
 
         foreach($tables as $table) {
-            $className = \Phalcon\Text::camelize($table);
-            $filePath = $modelDir. $className . $bootstrap::PHP_EXT;
+            $className = \Phalcon\Text::camelize($table) . "Model";
+            $filePath = $modelDir. $className . \PhalconPlus\Enum\Sys::EXT;
             $fullClassName = $namespace . '\\' . $className;
 
             $padding->label("  " . $fullClassName)->result($filePath);
@@ -99,14 +130,14 @@ class CreateModelTask extends \Phalcon\CLI\Task
                     ),
                     array(
                         'name'        => 'license',
-                        'description' => 'PhalconPlus( http://plus.phalconphp.org/license-1.0.html )',
+                        'description' => 'PhalconPlus( http://phalconplus.bullsoft.org/license-1.0.html )',
                     ),
                 ),
             ));
 
             $generator->setName($className)
                 ->setDocblock($docblock)
-                ->setExtendedClass("\\PhalconPlus\Base\Model");
+                ->setExtendedClass("ModelBase");
 
             $columns = $connection->fetchAll("DESC $table", \Phalcon\Db::FETCH_ASSOC);
             $columnsDefaultMap = $this->getDefaultValuesMap($columns);
@@ -116,7 +147,11 @@ class CreateModelTask extends \Phalcon\CLI\Task
 
             foreach($connection->describeColumns($table) as $columnObj) {
                 $columnName = $columnObj->getName();
-                $camelizeColumnName = lcfirst(\Phalcon\Text::camelize($columnName));
+                if(false !== strpos($columnName, "_")) {
+                    $camelizeColumnName = lcfirst(\Phalcon\Text::camelize($columnName));
+                } else {
+                    $camelizeColumnName = $columnName;
+                }
                 $onConstructBody .= '$this->'.$camelizeColumnName
                                  . ' = ' . var_export($columnsDefaultMap[$columnName], true)
                                  . ";\n";
@@ -178,7 +213,9 @@ class CreateModelTask extends \Phalcon\CLI\Task
                     'initialize',
                     array(),
                     MethodGenerator::FLAG_PUBLIC,
-                    'parent::initialize();' . "\n" . '$this->setConnectionService("'. $dbService .'");' . "\n"
+                    'parent::initialize();' . "\n" .
+                    '$this->setWriteConnectionService("'. $dbService .'");' . "\n" .
+                    '$this->setReadConnectionService("'.$dbService."Read".'");'
                 );
             }
 
@@ -235,7 +272,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
         $ret = array();
         foreach ($columns as $item) {
             if($item['Type'] == 'timestamp' && $item['Default'] == 'CURRENT_TIMESTAMP') {
-                $item['Default'] = '1800-01-01 00:00:00';
+                $item['Default'] = '0001-01-01 00:00:00';
             }
             $ret[$item['Field']] = $item['Default'];
         }
