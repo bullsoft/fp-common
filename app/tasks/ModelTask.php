@@ -40,14 +40,14 @@ class ModelTask extends \Phalcon\CLI\Task
     {
         if(empty($argv)) {
             $this->cli->backgroundRed("致命错误：模块名称不能为空！");
-            exit(2);
+            exit(1);
         }
 
         $module = $argv[0];
         $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
         if (!$filesystem->has($module)) {
             $this->cli->backgroundRed("模块{$module}不存在，请更换名称再试！");
-            exit(1);
+            exit(2);
         }
         $modelPath = "{$module}/app/models/";
         $list = $filesystem->listContents($modelPath);
@@ -59,11 +59,24 @@ class ModelTask extends \Phalcon\CLI\Task
 
         $newList = [];
         foreach($list as $item) {
-            $tmp = [];
-            $tmp['model_name'] = '<light_green>' . $item['filename'] . '</light_green>';
-            $tmp['directory'] = $item['dirname'];
-            $tmp['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
-            $newList[] = $tmp;
+            if($item["type"] == "dir") {
+                $subList = $filesystem->listContents($modelPath. $item["filename"] . "/");
+                foreach($subList as $subItem) {
+                    if($subItem['filename'] == "ModelBase") continue;
+                    $tmp = [];
+                    $tmp['model_name'] =  '<light_red>' . $item['filename'] . '</light_red>' . '<light_green>' . '\\' . $subItem['filename'] . '</light_green>';
+                    $tmp['directory'] = $subItem['dirname'];
+                    $tmp['create_time'] = date("Y-m-d H:i:s", $subItem['timestamp']);
+                    $newList[] = $tmp;
+                }
+            } else {
+                if($item['filename'] == "ModelBase") continue;
+                $tmp = [];
+                $tmp['model_name'] = '<light_green>' . $item['filename'] . '</light_green>';
+                $tmp['directory'] = $item['dirname'];
+                $tmp['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
+                $newList[] = $tmp;
+            }
         }
 
         $this->cli->table($newList);

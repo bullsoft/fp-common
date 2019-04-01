@@ -13,6 +13,12 @@ class Srv extends PlusModule
             __NAMESPACE__.'\\Tasks'    => __DIR__.'/tasks/tasks/',
             "Common\\Protos"           => APP_ROOT_COMMON_DIR.'/protos/',
         ))->register();
+
+        // load composer library
+        $composer = APP_ROOT_DIR . "/vendor/autoload.php";
+        if(file_exists($composer)) {
+            require_once $composer;
+        }
     }
 
     public function registerServices()
@@ -24,8 +30,14 @@ class Srv extends PlusModule
         // get config
         $config = $di->get('config');
 
-        // register db service
+        // register db write service
         $di->setShared('db', function() use ($di) {
+            $mysql = new \PhalconPlus\Db\Mysql($di, "db");
+            return $mysql->getConnection();
+        });
+
+        // register db read service
+        $di->setShared('dbRead', function() use ($di) {
             $mysql = new \PhalconPlus\Db\Mysql($di, "db");
             return $mysql->getConnection();
         });
