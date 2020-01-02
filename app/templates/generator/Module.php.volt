@@ -1,8 +1,8 @@
-namespace {{rootNs}}\{{moduleName}};
+namespace {{rootNs}};
 
 use PhalconPlus\Base\AbstractModule as PlusModule;
 use PhalconPlus\Logger\Processor\Trace as TraceProcessor;
-use PhalconPlus\Logger\Processor\Uid as UidProcessor;
+use PhalconPlus\Logger\Processor\LogId as LogIdProcessor;
 
 class Module extends PlusModule
 {
@@ -10,17 +10,11 @@ class Module extends PlusModule
     {
         $loader = new \Phalcon\Loader();
         $loader->registerNamespaces(array(
-            __NAMESPACE__.'\\Controllers' => __DIR__.'/controllers/',
+            __NAMESPACE__.'\\Controllers'       => __DIR__.'/controllers/',
             __NAMESPACE__.'\\Controllers\\Apis' => __DIR__.'/controllers/apis/',
-            __NAMESPACE__.'\\Models'      => __DIR__.'/models/',
-            "Common\\Protos"              => APP_ROOT_COMMON_DIR.'/protos/',
+            __NAMESPACE__.'\\Models'            => __DIR__.'/models/',
+            "App\\Com\\Protos"                  => APP_ROOT_COMMON_DIR.'/protos/',
         ))->register();
-
-        // load composer library
-        $composer = APP_ROOT_DIR . "/vendor/autoload.php";
-        if(file_exists($composer)) {
-            require_once $composer;
-        }
     }
     
     public function registerServices()
@@ -31,6 +25,7 @@ class Module extends PlusModule
         $bootstrap = $di->get('bootstrap');
         // get config
         $config = $di->get('config');
+        $that = $this;
 
         $router = $di->getShared("router");
         if($router instanceof \Phalcon\Mvc\Router) {
@@ -47,36 +42,52 @@ class Module extends PlusModule
             });
         }
 
-        // register a dispatcher
-        $di->has("dispatched") || $di->set('dispatcher', function () use ($di) {
-            $evtManager = $di->getShared('eventsManager');
-            $evtManager->attach("dispatch:beforeException", function ($event, $dispatcher, $exception) {
-                if(rtrim($dispatcher->getNamespaceName(), "\\") == __NAMESPACE__ ."\\Controllers\\Apis") {
-                    throw $exception;
-                }
-                switch ($exception->getCode()) {
-                    case \Phalcon\Mvc\Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
-                    case \Phalcon\Mvc\Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
-                        $dispatcher->forward(array(
-                            'controller' => 'error',
-                            'action'     => 'show404'
-                        ));
-                        return false;
-                    default:
-                        $dispatcher->forward(array(
-                            'controller' => 'error',
-                            'action'     => 'showUnknown',
-                            "params"     => [$exception],
-                        ));
-                        return false;
-                }
-            });
-            $dispatcher = new \Phalcon\Mvc\Dispatcher();
-            $dispatcher->setEventsManager($evtManager);
-            $dispatcher->setDefaultNamespace(__NAMESPACE__."\\Controllers\\");
-            return $dispatcher;
-        });   
+        // load env from {$root}/.env
+        if(\PhalconPlus\Enum\RunEnv::isInProd(APP_RUN_ENV)) {
+            if(\file_exists(APP_ROOT_DIR.".env")) {
+                $dotenv = \Dotenv\Dotenv::create(APP_ROOT_DIR);
+                $dotenv->load();
+            }
+        }
 
+        if($this->isPrimary()) {
+            $di->set('myConfig', function() use($that) {
+                return $that->getDef()->getConfig();
+            });
+        }
+
+        if($this->isPrimary()) {
+            // register a dispatcher
+            $di->has("dispatched") || $di->set('dispatcher', function () use ($di) {
+                $evtManager = $di->getShared('eventsManager');
+                $evtManager->attach("dispatch:beforeException", function ($event, $dispatcher, $exception) {
+                    if(rtrim($dispatcher->getNamespaceName(), "\\") == __NAMESPACE__ ."\\Controllers\\Apis") {
+                        throw $exception;
+                    }
+                    switch ($exception->getCode()) {
+                        case \Phalcon\Mvc\Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
+                        case \Phalcon\Mvc\Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
+                            $dispatcher->forward(array(
+                                'controller' => 'error',
+                                'action'     => 'show404'
+                            ));
+                            return false;
+                        default:
+                            $dispatcher->forward(array(
+                                'controller' => 'error',
+                                'action'     => 'showUnknown',
+                                "params"     => [$exception],
+                            ));
+                            return false;
+                    }
+                });
+                $dispatcher = new \Phalcon\Mvc\Dispatcher();
+                $dispatcher->setEventsManager($evtManager);
+                $dispatcher->setDefaultNamespace(__NAMESPACE__."\\Controllers\\");
+                return $dispatcher;
+            });   
+        }
+        
         $di->set("rpc", function() use ($di, $config, $bootstrap) {
             $client = null;
             if($config->debugRPC == true) {
@@ -113,15 +124,13 @@ class Module extends PlusModule
             return $view;
         });
 
-        $di->setShared("logger", function() use ($di, $config){
-            $logger = new \PhalconPlus\Logger\Adapter\FilePlus($config->application->logFilePath);
-            $logger->registerExtension(".de", [\Phalcon\Logger::DEBUG]);
-            
+        $di->setShared("logger", function() use ($config){
+            $logger = new \PhalconPlus\Logger\MultipleFile($config->logger->toArray());
+            $logger->addProcessor("logId", new LogIdProcessor(18));
+            $logger->addProcessor("trace", new TraceProcessor(TraceProcessor::T_CLASS));
             // 添加formatter
-            $formatter = new \PhalconPlus\Logger\Formatter\LinePlus("[%date%][%trace%][%uid%][%type%] %message%");
-            $formatter->addProcessor("uid", new UidProcessor(18));
-            $formatter->addProcessor("trace", new TraceProcessor(TraceProcessor::T_CLASS));
-            
+            $formatter = new \Phalcon\Logger\Formatter\Line("[%date%][{trace}][{logId}][%type%] %message%");
+            $formatter->setDateFormat("Y-m-d H:i:s");
             $logger->setFormatter($formatter);
             return $logger;
         });

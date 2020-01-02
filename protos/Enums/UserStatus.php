@@ -1,8 +1,8 @@
 <?php
-namespace Common\Protos;
+namespace PhalconPlus\Com\Protos\Enums;
 use \PhalconPlus\Enum\AbstractEnum;
 
-class EnumUserStatus extends AbstractEnum
+class UserStatus extends AbstractEnum
 {
     const __default = self::NORMAL;
 

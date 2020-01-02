@@ -3,6 +3,11 @@
 
 require $rootPath."/common/load/default.php";
 
+
+if($di instanceof \Phalcon\DI\FactoryDefault\CLI) {
+    return;
+}
+
 $di->setShared('cookie', function () {
     $cookie = new \Phalcon\Http\Response\Cookies();
     return $cookie;

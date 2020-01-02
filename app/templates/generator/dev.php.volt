@@ -1,11 +1,21 @@
 return array(
     'application' => array(
         "name"  => "{{module}}",
-        "ns"    => "{{rootNs}}\\{{moduleName}}\\",
+        "ns"    => "{{rootNs}}\\",
         "mode"  => "{{mode}}",
         "staticUri" => "/",
         "url" => "http//server.localhost.com/",
-        "logFilePath" => "/tmp/{{rootNs}}_{{module}}.log",
+        "logFilePath" => "/tmp/{{module}}.log",
+    ),
+    "logger" => array(
+        array(
+            "filePath" => "/tmp/{{module}}.log.debug",
+            "level" => \Phalcon\Logger::DEBUG
+        ),
+        array(
+            "filePath" => "/tmp/{{module}}.log",
+            "level" => \Phalcon\Logger::SPECIAL
+        )
     ),
 {% if mode == "Web" %}
     "view" => array(

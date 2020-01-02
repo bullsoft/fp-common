@@ -16,17 +16,20 @@ class ServerTask extends \Phalcon\CLI\Task
 
     public function startAction($argv)
     {
+        global $version;
+        if($version > 3) {
+            $argv = func_get_args();
+        }
         if(empty($argv)) {
             $this->cli->error("致命错误：请指定您要运行的模块！");
             exit(3);
         }
-        // 获取模块名
         $module = $argv[0];
-        // 默认端口
-        $port = 8000;
 
         if(isset($argv[1])) {
             $port = $argv[1];
+        } else {
+            $port = 8000;
         }
 
         $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
@@ -107,6 +110,10 @@ class ServerTask extends \Phalcon\CLI\Task
 
     public function stopAction($argv)
     {
+        global $version;
+        if($version > 3) {
+            $argv = func_get_args();
+        }
         if(empty($argv)) {
             $this->cli->error("致命错误：请指定您要运行的模块！");
             exit(3);
@@ -173,9 +180,13 @@ class ServerTask extends \Phalcon\CLI\Task
                 } elseif($phpOS == "linux") {
                     exec("ps -P {$pid}", $output);
                 }
-                $newItem['running_command'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
-
-                $modules[] = $newItem;
+                if(isset($output[1])) {
+                    // server.pid exists, but process die
+                    $newItem['running_command'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
+                    $modules[] = $newItem;
+                } else {
+                    unlink($pidPath);
+                }
             }
         }
 

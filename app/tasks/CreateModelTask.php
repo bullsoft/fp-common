@@ -125,10 +125,6 @@ class CreateModelTask extends \Phalcon\CLI\Task
                         'description' => rtrim($namespace, "\\"),
                     ),
                     array(
-                        'name'        => 'version',
-                        'description' => '$Rev:'. date("Y-m-d H:i:s") .'$',
-                    ),
-                    array(
                         'name'        => 'license',
                         'description' => 'PhalconPlus( http://phalconplus.bullsoft.org/license-1.0.html )',
                     ),
@@ -139,7 +135,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
                 ->setDocblock($docblock)
                 ->setExtendedClass("ModelBase");
 
-            $columns = $connection->fetchAll("DESC $table", \Phalcon\Db::FETCH_ASSOC);
+            $columns = $connection->fetchAll("DESC `$table`", \Phalcon\Db::FETCH_ASSOC);
             $columnsDefaultMap = $this->getDefaultValuesMap($columns);
 
             $onConstructBody = "";
@@ -219,7 +215,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
                 );
             }
 
-            $generator->addMethod(
+            $methodGenerator4 = new \Zend\Code\Generator\MethodGenerator(
                 'getSource',
                 array(),
                 MethodGenerator::FLAG_PUBLIC,
@@ -230,6 +226,8 @@ class CreateModelTask extends \Phalcon\CLI\Task
 
                 ))
             );
+            $methodGenerator4->setReturnType("string");
+            $generator->addMethodFromGenerator($methodGenerator4);
 
             $file = new FileGenerator();
             $file->setFilename($filePath);

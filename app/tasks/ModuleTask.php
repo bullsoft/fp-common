@@ -27,12 +27,12 @@ class ModuleTask extends \Phalcon\CLI\TASK
         foreach($contents as $item) {
             if($item['type'] == "file") continue;
             $module = $item['basename'];
+            if(\Phalcon\Text::startsWith($module, ".")) continue;
             if(in_array($module, $this->skipDirs)) continue;
             $configPath = "{$module}/app/config/" . APP_ENV . ".php";
             if(!$filesystem->has($configPath)) {
                 $configPath = "{$module}/app/config/config.php";
             }
-            if(!$filesystem->has($configPath)) continue;
             $newItem = [];
             $config = new \Phalcon\Config($this->di->getBootstrap()->load(APP_ROOT_DIR . $configPath));
 
