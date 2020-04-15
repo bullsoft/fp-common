@@ -1,6 +1,6 @@
 <?php
 
-namespace PhalconPlus\Com\Protos\Schemas;
+namespace App\Com\Protos\Schemas;
 
 /**
  * @Title("Id")

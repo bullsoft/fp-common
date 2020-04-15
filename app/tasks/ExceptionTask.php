@@ -2,7 +2,7 @@
 
 namespace PhalconPlus\DevTools\Tasks;
 
-class ExceptionTask extends \Phalcon\CLI\Task
+class ExceptionTask extends BaseTask
 {
     public function mainAction()
     {

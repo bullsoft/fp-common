@@ -1,22 +1,25 @@
 <?php
-namespace PhalconPlus\Com\Protos;
+namespace App\Com\Protos;
 /**
  * 此类由代码自动生成，请不要修改
  */
 class ExceptionBase extends \PhalconPlus\Base\Exception
 {
-    public function __construct($info = "", int $code = 1, object $logger = null)
-    {
-        if(is_null($logger)) {
-            $logger = di()->get("logger");
-        }
-        if($this->code < 1) {
-            $this->setCode($code);
-        }
-        parent::__construct($info, $logger);
-    }
-
-    public static function throw(string $info = "", int $code = 1)
+    /**
+     * 
+     * 
+     * $info = "letter A is for Amy";
+     * 
+     * $info = ["letter A is for Amy", ["Amy"]];
+     * ];
+     * 
+     * $info = ["letter A is for Amy", 
+     *      "text" => "字母A代表%s", 
+     *      "args" => ["Amy"]
+     * ];
+     * 
+     */
+    public static function throw($info = "", int $code = 1)
     {
         throw new self($info, $code);
     }

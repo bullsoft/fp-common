@@ -1,6 +1,6 @@
 <?php
-namespace PhalconPlus\Com\Protos;
-use \PhalconPlus\Base\ProtoBuffer;
+namespace App\Com\Protos;
+use PhalconPlus\Base\ProtoBuffer;
 use PSX\Schema\SchemaTraverser;
 use PSX\Schema\SchemaManager;
 use PSX\Schema\Visitor\TypeVisitor;

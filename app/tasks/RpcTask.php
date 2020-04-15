@@ -5,7 +5,7 @@ use PhalconPlus\Base\SimpleResponse as SimpleResponse;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 
-class RpcTask extends \Phalcon\CLI\Task
+class RpcTask extends BaseTask
 {
     public function callAction($argv)
     {

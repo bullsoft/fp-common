@@ -1,18 +1,18 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
 
-use Zend\Code\Generator\ClassGenerator;
+
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\PropertyGenerator;
-use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\MethodGenerator;
-use Zend\Code\Generator\DocBlock\Tag;
-use Zend\Code\Reflection\ClassReflection;
 
-use League\Flysystem\Filesystem;
-use League\Flysystem\Adapter\Local as LocalAdapter;
+use PhalconPlus\DevTools\Library\Model;
 
-class CreateModelTask extends \Phalcon\CLI\Task
+use Ph\{
+    App, Config, Sys,
+};
+
+class CreateModelTask extends BaseTask
 {
 
     public function mainAction()
@@ -23,7 +23,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
         // ------ 获取模块的名字 -------
         $input = $this->cli->input("<green><bold>Step 1 </bold></green>请输入该模块的名称，如\"api\"" . PHP_EOL. "[Enter]:");
         $input->accept(function($response) use ($that){
-            $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
+            $filesystem = $that->filesystem;
             if (!$filesystem->has($response)) {
                 $that->cli->backgroundRed("模块{$response}不存在，请更换名称再试！");
                 return false;
@@ -57,92 +57,32 @@ class CreateModelTask extends \Phalcon\CLI\Task
 
     protected function generate($module, $dbService, $useDbAsNamespace)
     {
-        $bootstrap = $this->getDI()->get('bootstrap');
-
         // 依赖该模块
-        $bootstrap->dependModule($module);
+        $def = App::dependModule($module)->def();
+        $model = (new Model($def, $dbService))
+                ->generateBaseModel($useDbAsNamespace);
 
-        $moduleConfig = $bootstrap->getModuleDef($module)->getConfig();
-
-        $namespace = $moduleConfig->application->ns . 'Models';
-        $modelDir = APP_ROOT_DIR . $module . "/app/models/";
-
-        if($useDbAsNamespace == true) {
-            $dbName = $this->config->{$dbService}->dbname;
-            $dbName = \Phalcon\Text::camelize($dbName);
-            $namespace .= "\\" . $dbName;
-            $modelDir .= $dbName . "/";
-        }
-
-        // 如果models目录不存在，则创建它
-        if(!is_dir($modelDir)) {
-            mkdir($modelDir, 0777, true);
-        }
-
-        $filePath = $modelDir . "ModelBase.php";
-        if(!is_file($filePath)) {
-            $modelBaseTemplate = file_get_contents(APP_MODULE_DIR . "app/templates/generator/ModelBase.php.volt");
-            $tokens = [
-                "<<<namespace>>>",
-            ];
-            $replacements = [
-                $namespace
-            ];
-            $modelBaseClass = str_replace($tokens, $replacements, $modelBaseTemplate);
-            file_put_contents($filePath, "<?php\n" . $modelBaseClass);
-        }
         $connection = $this->di->get($dbService);
         $tables = $connection->listTables();
 
         $padding = $this->cli->padding(26);
 
         foreach($tables as $table) {
-            $className = \Phalcon\Text::camelize($table) . "Model";
-            $filePath = $modelDir. $className . \PhalconPlus\Enum\Sys::EXT;
-            $fullClassName = $namespace . '\\' . $className;
-
-            $padding->label("  " . $fullClassName)->result($filePath);
-
-            if (class_exists($fullClassName)) {
-                $cr = new ClassReflection(new $fullClassName);
-                $generator = ClassGenerator::fromReflection($cr);
-                $constants = $generator->getConstants();
-                foreach ($constants as $key => $val) {
-                    if ($cr->getParentClass()->hasConstant($key)) {
-                        $generator->removeConstant($key);
-                    }
-                }
-            } else {
-                $generator = new ClassGenerator();
-            }
-
-            $docblock = DocBlockGenerator::fromArray(array(
-                'shortDescription' => 'Phalcon Model: ' . $className,
-                'longDescription'  => '此文件由代码自动生成，代码依赖PhalconPlus和Zend\Code\Generator',
-                'tags'             => array(
-                    array(
-                        'name'        => 'namespace',
-                        'description' => rtrim($namespace, "\\"),
-                    ),
-                    array(
-                        'name'        => 'license',
-                        'description' => 'PhalconPlus( http://phalconplus.bullsoft.org/license-1.0.html )',
-                    ),
-                ),
-            ));
-
-            $generator->setName($className)
-                ->setDocblock($docblock)
-                ->setExtendedClass("ModelBase");
-
+            // FileGenerator
+            $file = $model->generateFromTable($table, $useDbAsNamespace); 
+            // ClassGenerator
+            $generator = $file->getClass();
+            // Print
+            $padding->label($generator->getName())->result($file->getFilename());
+            // Columns
             $columns = $connection->fetchAll("DESC `$table`", \Phalcon\Db::FETCH_ASSOC);
             $columnsDefaultMap = $this->getDefaultValuesMap($columns);
-
+            // Body of `onConstruct()` and `columnMap()`
             $onConstructBody = "";
-            $columnMapBody = "return array(\n";
+            $columnMapBody = "return [\n";
 
-            foreach($connection->describeColumns($table) as $columnObj) {
-                $columnName = $columnObj->getName();
+            foreach($columns as $column) {
+                $columnName = $column['Field'];
                 if(false !== strpos($columnName, "_")) {
                     $camelizeColumnName = lcfirst(\Phalcon\Text::camelize($columnName));
                 } else {
@@ -160,12 +100,24 @@ class CreateModelTask extends \Phalcon\CLI\Task
                         'shortDescription' => '',
                         'tags' => array(
                             array(
-                                'name' => 'var',
-                                'description' => $this->getTypeString($columnObj->getType()),
+                                'name' => 'Type',
+                                'description' => $column['Type'],
                             ),
                             array(
-                                'name' => 'table',
-                                'description' => $table,
+                                'name' => 'Null',
+                                'description' => $column['Null'],
+                            ),
+                            array(
+                                'name' => 'Default',
+                                'description' => $column['Default'],
+                            ),
+                            array(
+                                'name' => 'Key',
+                                'description' => $column['Key'],
+                            ),
+                            array(
+                                'name' => 'Extra',
+                                'description' => $column['Extra'],
                             ),
                         )
                     ),
@@ -173,13 +125,9 @@ class CreateModelTask extends \Phalcon\CLI\Task
                 $generator->removeProperty($columnName);
                 $generator->addPropertyFromGenerator($property);
             }
+            $columnMapBody .= "];\n";
 
-            $columnMapBody .= ");\n";
-
-            $generator->hasMethod("onConstruct") && $generator->removeMethod("onConstruct");
-            $generator->hasMethod("columnMap") && $generator->removeMethod("columnMap");
-            $generator->hasMethod("getSource") && $generator->removeMethod("getSource");
-
+            // onConstruct()
             $generator->addMethod(
                     'onConstruct',
                     array(),
@@ -191,19 +139,18 @@ class CreateModelTask extends \Phalcon\CLI\Task
 
                     ))
             );
-
+            // ColumnMap()
             $generator->addMethod(
-                    'columnMap',
-                    array(),
-                    MethodGenerator::FLAG_PUBLIC,
-                    $columnMapBody,
-                    DocBlockGenerator::fromArray(array(
-                        'shortDescription' => 'Column map for database fields and model properties',
-                        'longDescription'  => null,
-                    ))
-                );
-
-
+                'columnMap',
+                array(),
+                MethodGenerator::FLAG_PUBLIC,
+                $columnMapBody,
+                DocBlockGenerator::fromArray(array(
+                    'shortDescription' => 'Column map for database fields and model properties',
+                    'longDescription'  => null,
+                ))
+            );
+            // initialize()
             if(!$generator->hasMethod("initialize")) {
                 $generator->addMethod(
                     'initialize',
@@ -214,7 +161,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
                     '$this->setReadConnectionService("'.$dbService."Read".'");'
                 );
             }
-
+            // getSource()
             $methodGenerator4 = new \Zend\Code\Generator\MethodGenerator(
                 'getSource',
                 array(),
@@ -228,44 +175,14 @@ class CreateModelTask extends \Phalcon\CLI\Task
             );
             $methodGenerator4->setReturnType("string");
             $generator->addMethodFromGenerator($methodGenerator4);
-
-            $file = new FileGenerator();
-            $file->setFilename($filePath);
-            $file->setNamespace($namespace);
-            $file->setClass($generator);
+            // Write to file
             $file->write();
         }
-
         $this->cli->br()->info("... 恭喜您，创建成功！");
     }
 
     private function getTypeString($type)
     {
-        // integer TYPE_INTEGER
-        // integer TYPE_BIGINTEGER
-
-        // integer TYPE_DATE
-        // integer TYPE_TIMESTAMP
-        // integer TYPE_DATETIME
-
-        // integer TYPE_VARCHAR
-        // integer TYPE_CHAR
-        // integer TYPE_TEXT
-
-        // integer TYPE_DECIMAL
-        // integer TYPE_FLOAT
-        // integer TYPE_DOUBLE
-
-        // integer TYPE_BOOLEAN
-
-        // integer TYPE_TINYBLOB
-        // integer TYPE_BLOB
-        // integer TYPE_MEDIUMBLOB
-        // integer TYPE_LONGBLOB
-
-        // integer TYPE_JSON
-        // integer TYPE_JSONB
-
         switch ($type) {
             case \Phalcon\Db\Column::TYPE_BIGINTEGER:
             case \Phalcon\Db\Column::TYPE_INTEGER:
@@ -302,7 +219,7 @@ class CreateModelTask extends \Phalcon\CLI\Task
         $ret = array();
         foreach ($columns as $item) {
             if(in_array($item['Type'], ['timestamp', 'date', 'datetime']) && $item['Default'] == 'CURRENT_TIMESTAMP') {
-                $item['Default'] = '0001-01-01 00:00:00';
+                $item['Default'] = '1001-01-01 00:00:00';
             }
             $ret[$item['Field']] = $item['Default'];
         }

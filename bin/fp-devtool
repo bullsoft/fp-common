@@ -2,16 +2,13 @@
 <?php
 date_default_timezone_set('Asia/Shanghai');
 ini_set("memory_limit", "4G");
-require_once(dirname(dirname(__DIR__)) . "/vendor/autoload.php");
 
-$bootstrap = new \PhalconPlus\Bootstrap(dirname(__DIR__));
-$di = new \Phalcon\DI\FactoryDefault\CLI();
-$version = \Phalcon\Version::getPart(
-    \Phalcon\Version::VERSION_MAJOR
+$app = (new PhalconPlus\Bootstrap(dirname(__DIR__)))->app();
+$version = Phalcon\Version::getPart(
+    Phalcon\Version::VERSION_MAJOR
 );
-
-$di->setShared('cli', function(){
-    return new \League\CLImate\CLImate();
+$app->di()->setShared('cli', function(){
+    return new League\CLImate\CLImate();
 });
 
 $phpOS = strtolower(PHP_OS);
@@ -24,12 +21,22 @@ if(substr($phpOS, 0, 3) == "win") {
 $arguments = array();
 foreach($argv as $k => $arg) {
     if($k == 1) {
-        $arguments['task'] = $arg;
+        if(strpos($arg, ":") == false) {
+            $arguments['task'] = $arg;
+        } else {
+            [$task, $action] = explode(":", $arg);
+            $arguments['task'] = $task;
+            $arguments['action'] = \Phalcon\Text::camelize($action, "-");
+        }
     } elseif($k == 2) {
-        $arguments['action'] = $arg;
+        if(!isset($arguments['action'])) {
+            $arguments['action'] = \Phalcon\Text::camelize($arg, "-");
+        } else {
+            $arguments['params'][] = $arg;    
+        }
     } elseif($k >= 3) {
         $arguments['params'][] = $arg;
     }
 }
 
-$bootstrap->execTask($arguments, $di);
+$app->handle($arguments);

@@ -2,7 +2,7 @@
 
 namespace PhalconPlus\DevTools\Tasks;
 
-class HelpTask extends \Phalcon\CLI\Task
+class HelpTask extends BaseTask
 {
     private $c;
 

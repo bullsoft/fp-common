@@ -1,58 +1,48 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
-
-class CreateExceptionTask extends \Phalcon\CLI\Task
+use Ph\{App, Sys};
+class CreateExceptionTask extends BaseTask
 {
-    protected $tokens = array(
-        "<<<namespace>>>",
-        "<<<className>>>",
-        "<<<parentClassName>>>",
-        "<<<code>>>",
-        "<<<message>>>",
-        "<<<level>>>",
-    );
-
     public function mainAction()
     {
         $this->cli->info('现在开始引导您创建Phalcon+异常类 ...');
         $that = $this;
 
-        // ------ 获取模块的名字 -------
-        $input = $this->cli->input("<green><bold>Step 1 </bold></green>请输入EnumExceptionCode类的位置（相对于". APP_ROOT_DIR. "），默认值\"common/protos\"" . PHP_EOL. "[Enter]:");
-        $input->defaultTo("common/protos");
-        $path = $input->prompt();
-
-        $this->generate($path);
-
+        // ------ 选择模块 -------
+        $modueList = $this->module->getList();
+        $options = array_keys($modueList);
+        $input = $this->cli->radio('<green><bold>Step 1 </bold></green>请选择模块:', $options);
+        do {
+            $module = $input->prompt();
+        } while(empty($module));
+        if($module == 'common') {
+            $path = "/common/protos/Exceptions";
+            $ns = "App\\Com\\Protos\\Exceptions";
+        } else {
+            $path = "/{$module}/app/exceptions";
+            $m = App::dependModule($module);
+            $ns = rtrim($m->config()->path("application.ns"), "\\") . "\\Exceptions";
+        }
+        $this->cli->info("<green><bold>Step 2 </bold></green> 开始为{$module}生成异常类...");
+        $this->generate($path, $ns);
     }
 
-    public function generate($path)
+    public function generate(string $path, string $ns)
     {
-        $tokens = $this->tokens;
-
-        $enumExceptionFilePath = APP_ROOT_DIR . $path . "/EnumExceptionCode.php";
-        $fileReflector = new \Zend\Code\Reflection\FileReflection($enumExceptionFilePath, true);
-        $ns = $fileReflector->getNamespace();
-
-        $loader = new \Phalcon\Loader();
-        $loader->registerNamespaces(array(
-            $ns => APP_ROOT_DIR . $path . "/"
-        ))->register();
-
         // 异常类名
         $enumExceptionClass = $ns . "\\EnumExceptionCode";
 
         $enumExceptionCode = $enumExceptionClass::validValues(true);
         $exceptionNS = $enumExceptionClass::exceptionClassPrefix();
 
-        $dir = APP_ROOT_DIR . $path ."/Exceptions/";
+        $dir = Sys::getRootDir() . $path;
         if(!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
-
-        $classTemplate = file_get_contents(APP_MODULE_DIR . "app/templates/exception/default.php.volt");
-
-        $parentClass = "\PhalconPlus\Com\Protos\ExceptionBase";
+        $tempPath =  Sys::getPrimaryModuleDir()."/app/templates/exceptions";
+        $volt = App::volt($tempPath);
+        // 异常类的父类
+        $parentClass = "\App\Com\Protos\ExceptionBase";
         if (!class_exists($parentClass)) {
             $parentClass = "\PhalconPlus\Base\Exception";
         }
@@ -60,6 +50,7 @@ class CreateExceptionTask extends \Phalcon\CLI\Task
         $padding = $this->cli->padding(18);
         foreach ($enumExceptionCode as $className => $code) {
             $replacement = [];
+            $replacement["ns"] = $ns;
             $replacement["namespace"] = rtrim($exceptionNS, "\\");
             $replacement["className"] = \Phalcon\Text::camelize($className) . "Exception";
             $replacement["parentClassName"] = $parentClass;
@@ -69,14 +60,19 @@ class CreateExceptionTask extends \Phalcon\CLI\Task
             $replacement["message"] = var_export($eCode->getMessage()?:"未知错误", true);
             $replacement["level"] = $eCode->getLevel();
 
-            $class = str_replace($tokens, $replacement, $classTemplate);
-            $filePath = $dir . $replacement["className"] . ".php";
+            $filePath = $dir . "/". $replacement["className"] . ".php";
 
-            $padding->label("  ". $className)->result( $filePath);
+            ob_start();
+            $volt->render($tempPath."/default.php.volt", $replacement, true);
+            $class = "<?php\n".$volt->getContent();
+            ob_end_clean();
+
+            $padding->label("  ". $className)->result($filePath);
 
             file_put_contents($filePath, $class);
-
         }
+
+        $this->filesystem->deleteDir("/common/var/cache/compiled");
 
         $this->cli->info(" ... 恭喜，创建成功！");
     }

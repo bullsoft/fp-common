@@ -1,9 +1,10 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Adapter\Local as LocalAdapter;
-
-class ModelTask extends \Phalcon\CLI\Task
+use PhalconPlus\DevTools\Library\Model;
+use Ph\{
+    App, Config
+};
+class ModelTask extends BaseTask
 {
     public function mainAction()
     {
@@ -42,21 +43,19 @@ class ModelTask extends \Phalcon\CLI\Task
         if($version > 3) {
             $argv = func_get_args();
         }
-        
         if(empty($argv)) {
             $this->cli->backgroundRed("致命错误：模块名称不能为空！");
             exit(1);
         }
-
         $module = $argv[0];
-        $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
-        if (!$filesystem->has($module)) {
-            $this->cli->backgroundRed("模块{$module}不存在，请更换名称再试！");
-            exit(2);
-        }
-        $modelPath = "{$module}/app/models/";
-        $list = $filesystem->listContents($modelPath);
+        $m = App::dependModule($module);
 
+        $model = new Model($m->def());
+        $modelClassName = $model->getNamespace() . "\\";
+        $modelPath = "{$module}/src/models";
+
+        $filesystem = $this->filesystem;
+        $list = $filesystem->listContents($modelPath);
         if(empty($list)) {
             $this->cli->info("该模块下没有模型文件");
             exit(3);
@@ -67,26 +66,29 @@ class ModelTask extends \Phalcon\CLI\Task
             if($item["type"] == "dir") {
                 $subList = $filesystem->listContents($modelPath. $item["filename"] . "/");
                 foreach($subList as $subItem) {
-                    if($subItem['filename'] == "ModelBase") continue;
+                    if($subItem['filename'] == "ModelBase" || $subItem['filename'] == "BaseModel") continue;
+                    $classname = $modelClassName. $item["filename"] . "\\" . $subItem['filename'];
+
                     $tmp = [];
-                    $tmp['model_name'] =  '<light_red>' . $item['filename'] . '</light_red>' . '<light_green>' . '\\' . $subItem['filename'] . '</light_green>';
-                    $tmp['directory'] = $subItem['dirname'];
+                    $tmp['table'] = (new $classname())->getSource();
+                    $tmp['model_name']  =  '<light_red>' . $item['filename'] . '</light_red>' . '<light_green>' . '\\' . $subItem['filename'] . '</light_green>';
+                    $tmp['directory']   = $subItem['dirname'];
                     $tmp['create_time'] = date("Y-m-d H:i:s", $subItem['timestamp']);
                     $newList[] = $tmp;
                 }
             } else {
-                if($item['filename'] == "ModelBase") continue;
+                if($item['filename'] == "ModelBase" || $item['filename'] == "BaseModel") continue;
                 $tmp = [];
+                $classname = $modelClassName. $item["filename"];
+                $tmp['table'] = (new $classname())->getSource();
                 $tmp['model_name'] = '<light_green>' . $item['filename'] . '</light_green>';
                 $tmp['directory'] = $item['dirname'];
                 $tmp['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
                 $newList[] = $tmp;
             }
         }
-
         $this->cli->table($newList);
     }
-
 
     public function findAction($argv)
     {
@@ -94,22 +96,14 @@ class ModelTask extends \Phalcon\CLI\Task
             $this->cli->backgroundRed("请指定模块名称和模型名称！");
             exit(1);
         }
-
         $module = $argv[0];
-        $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
-        if (!$filesystem->has($module)) {
-            $this->cli->backgroundRed("模块{$module}不存在，请更换名称再试！");
-            exit(2);
-        }
-
         $modelName = $argv[1];
-        $cond = isset($argv[2])?$argv[2]:"";
+        $cond = isset($argv[2]) ? $argv[2] : "";
 
-        $bootstrap = $this->di->getBootstrap();
-        $bootstrap->dependModule($module);
-        $moduleConfig = $bootstrap->getModuleDef($module)->getConfig();
-        $ns = $moduleConfig->application->ns;
-        $modelClassName = $ns . "Models\\" . $modelName;
+        $m = App::dependModule($module);
+
+        $model = new Model($m->def());
+        $modelClassName = $model->getNamespace() . "\\" . $modelName;
 
         if(!class_exists($modelClassName)) {
             $this->cli->backgroundRed("致命错误：模型类不存在");

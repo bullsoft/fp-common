@@ -1,7 +1,7 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
 
-class TestTask extends \Phalcon\CLI\Task
+class TestTask extends BaseTask
 {
     public function mainAction()
     {

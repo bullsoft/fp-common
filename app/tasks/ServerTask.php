@@ -1,9 +1,10 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Adapter\Local as LocalAdapter;
-
-class ServerTask extends \Phalcon\CLI\Task
+use PhalconPlus\DevTools\Library\Process;
+use Ph\{
+    App, Di,
+};
+class ServerTask extends BaseTask
 {
     public function mainAction()
     {
@@ -22,90 +23,37 @@ class ServerTask extends \Phalcon\CLI\Task
         }
         if(empty($argv)) {
             $this->cli->error("致命错误：请指定您要运行的模块！");
-            exit(3);
+            exit(1);
         }
         $module = $argv[0];
 
-        if(isset($argv[1])) {
-            $port = $argv[1];
-        } else {
-            $port = 8000;
-        }
-
-        $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
-        if (!$filesystem->has($module)) {
-            $this->cli->backgroundRed("模块{$module}不存在，请更换名称再试！");
-            exit(1);
-        }
-
-        if ($filesystem->has("{$module}/server.pid")) {
-            $this->cli->backgroundRed("模块{$module}正在运行中，请关闭后再启动！");
+        $def = $this->module->check($module);
+        if(false == $def) {
+            $this->cli->backgroundRed("模块{$module}不存在或不合法，请更换名称再试！");
             exit(2);
         }
+        $config = $def->config();
+        $port = $argv[1] ?? parse_url($config->application->url, \PHP_URL_PORT);
+        $port = $port ?? 8000;
+
+        $cwd = $def->getDir();
+        $process = new Process($cwd);
+
+        $cmd = "php -S 0.0.0.0:{$port} -t public/ .htrouter.php";
+        $pidPath = $this->module->getPidPath($def);
+        $logPath = $this->module->getAccessLogPath($def);
 
         $this->cli->info("正在为您启动服务器...");
 
-        $moduleDir = APP_ROOT_DIR . $module;
-
-        $descriptorSpec = array(
-            0 => array("pipe", "r"),  // 标准输入，子进程从此管道中读取数据
-            1 => array("file", "{$moduleDir}/access.log", "a"),  // 标准输出，子进程向此管道中写入数据
-            2 => array("pipe", "w"),
-        );
-
-        $cwd = $moduleDir;
-        $cmd = escapeshellcmd("php -S 0.0.0.0:{$port} -t public/ .htrouter.php") . " & echo $! > {$moduleDir}/server.pid";
-
-        /*
-          $procStatus =
-      array(8) {
-          ["command"]=>
-          string(49) "php -S localhost:8000 -t public/ .htrouter.php \&"
-          ["pid"]=>
-          int(81088)
-          ["running"]=>
-          bool(true)
-          ["signaled"]=>
-          bool(false)
-          ["stopped"]=>
-          bool(false)
-          ["exitcode"]=>
-          int(-1)
-          ["termsig"]=>
-          int(0)
-          ["stopsig"]=>
-          int(0)
-      }
-        */
-
-        $proc = proc_open($cmd, $descriptorSpec, $pipes, $cwd);
-
-        if(!is_resource($proc)) {
-            $this->cli->backgroundRed()->out("致命错误：进程启动失败！");
+        try {
+            $procStatus = $process->start($cmd, $pidPath, $logPath);
+        }catch(\Exception $e) {
+            $this->cli->backgroundRed($e->getMessage());
+            $this->cli->info("...正在退出");
             exit(3);
         }
-
-        stream_set_blocking($pipes[0], 0);
-        stream_set_blocking($pipes[2], 0);
-
-        $errMsg = stream_get_contents($pipes[2]);
-
-        if(!empty($errMsg)) {
-            $this->cli->backgroundRed()->out(" ... 严重错误 ... ");
-            $this->cli->out($errMsg);
-            proc_close($proc);
-            unlink($moduleDir."/server.pid");
-            $this->cli->error("... 启动失败，请仔细检查后重试!");
-            exit(4);
-        }
-        $procStatus = proc_get_status($proc);
-
-        $this->cli->backgroundLightBlue()->out("... 正在执行... ");
         $this->cli->json($procStatus);
-
-        proc_close($proc);
-
-        $this->cli->info("... 启动成功，请使用 http://localhost:{$port} 访问");
+        $this->cli->info("... 启动成功，请使用 http://127.0.0.1:{$port} 访问");
     }
 
     public function stopAction($argv)
@@ -116,84 +64,95 @@ class ServerTask extends \Phalcon\CLI\Task
         }
         if(empty($argv)) {
             $this->cli->error("致命错误：请指定您要运行的模块！");
-            exit(3);
+            exit(1);
         }
         $module = $argv[0];
 
-        $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
-        if (!$filesystem->has($module)) {
-            $this->cli->backgroundRed("模块{$module}不存在，请更换名称再试！");
-            exit(1);
+        $def = $this->module->check($module);
+        if(false == $def) {
+            $this->cli->backgroundRed("模块{$module}不存在或不合法，请更换名称再试！");
+            exit(2);
         }
+        $cwd = $def->getDir();
+        $pidPath = $this->module->getPidPath($def);
+        $pid = (int) trim(file_get_contents($pidPath));
 
-        $moduleDir = APP_ROOT_DIR . $module;
-
-        $procFile = $moduleDir . "/server.pid";
-        if(!is_file($procFile)) {
-            $this->cli->error("致命错误：该模块未运行！");
-            exit(1);
-        }
+        $process = new Process($cwd);
         $this->cli->info("正在关闭服务器... ");
+        try {
+            $result = $process->stop($pidPath);
+        } catch(\Exception $e) {
+            $this->cli->backgroundRed($e->getMessage());
+            exit(3);
+        }
+        
+        $this->cli->json([
+            "module" => $module,
+            "pid" => $pid,
+            "started_command" => $process->getPsCmd(),
+        ]);
 
-        $procId = file_get_contents($procFile);
+        if($result) {
+            $this->cli->info("... 关闭成功");
+        } else {
+            $this->cli->info("... 关闭失败");
+        }
+    }
 
-        $filesystem->delete($module."/server.pid");
-        $cmd = escapeshellcmd("kill -9 " . intval($procId));
+    public function restartAction($argv)
+    {
+        global $version;
+        if($version > 3) {
+            $argv = func_get_args();
+        }
+        if(empty($argv)) {
+            $this->cli->error("致命错误：请指定您要运行的模块！");
+            exit(1);
+        }
+        $module = $argv[0];
 
-        $this->cli->backgroundLightBlue()->out("... 正在执行 ...");
-        $this->cli->tab()->out($cmd);
-        exec($cmd);
-        $this->cli->info("... 关闭成功");
-
+        $def = $this->module->check($module);
+        if(false == $def) {
+            $this->cli->backgroundRed("模块{$module}不存在或不合法，请更换名称再试！");
+            exit(2);
+        }
+        $cwd = $def->getDir();
+        $process = new Process($cwd);
+        try {
+            $pidPath = $this->module->getPidPath($def);
+            $logPath = $this->module->getAccessLogPath($def);
+            $procStatus = $process->restart($pidPath, $logPath);
+        } catch(\Exception $e) {
+            $this->cli->error($e->getMessage());
+            exit(3);
+        }
+        $this->cli->json($procStatus);
+        $this->cli->info("... 重启成功， ".$process->getPsCmd());
     }
 
     public function listAction()
     {
         $this->cli->br()->info("您的Phalcon+服务列表：");
-        $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
-        $contents = $filesystem->listContents();
-        $modules = [];
-        foreach($contents as $item) {
-            if($item['type'] == "file") continue;
-            $module = $item['basename'];
-            $pidPath = "{$module}/server.pid";
-            if($filesystem->has($pidPath)) {
-                $configPath = "{$module}/app/config/" . APP_ENV . ".php";
-                if(!$filesystem->has($configPath)) {
-                    $configPath = "{$module}/app/config/config.php";
-                }
-                $config = new \Phalcon\Config($this->di->getBootstrap()->load(APP_ROOT_DIR . $configPath));
-                $newItem = [];
-                $newItem['name'] = "<light_green>".$config->application->name. "</light_green>";
-                $newItem['namespace'] = $config->application->ns;
-                $newItem['mode'] = $config->application->mode;
-                $newItem ['create_time'] = date("Y-m-d H:i:s", $item['timestamp']);
-
-                $pid = file_get_contents($pidPath);
-
-                $output = [];
-
-                $phpOS = strtolower(PHP_OS);
-
-                if($phpOS == "darwin") {
-                    exec("ps -p {$pid}", $output);
-                } elseif($phpOS == "linux") {
-                    exec("ps -P {$pid}", $output);
-                }
-                if(isset($output[1])) {
-                    // server.pid exists, but process die
-                    $newItem['running_command'] = join(" ", array_slice(str_getcsv($output[1], " "), -6));
-                    $modules[] = $newItem;
-                } else {
-                    unlink($pidPath);
-                }
+        $list = [];
+        $modules = $this->module->getList();
+        foreach($modules as $item) {
+            $newItem = [];
+            $newItem['name'] = "<light_green>".$item['name']. "</light_green>";
+            $newItem['namespace'] = $item['def']->config()->path('application.ns');
+            $newItem['mode'] = $item['def']->getMode();
+            $newItem['create_time'] = $item['create_time'];
+            $process = new Process($item['def']->getDir());
+            $ret = $process->ps($this->module->getPidPath($item['def']));
+            if($ret) {
+                $newItem['running_command'] = $process->getPsCmd();
+                $list[] = $newItem;
             }
         }
 
-        if(empty($modules)) {
+        if(empty($list)) {
             $this->cli->tab()->out("空！空即是色！放开那个女孩...")->br();
         } else {
-            $this->cli->table($modules);
+            $this->cli->table($list);
         }
     }
 
@@ -201,9 +160,7 @@ class ServerTask extends \Phalcon\CLI\Task
     {
         $this->cli->out('<light_yellow>帮助:<light_yellow>');
         $this->cli->out('    使用PHP内置服务器运行Phalcon+模块');
-
         $this->cli->br();
-
         $this->cli->out('<light_yellow>使用方式:<light_yellow>');
         $this->cli->out('    - 启动: /path/to/fp-devtool server start <light_red>moduleName</light_red> <blue>[listenPort]</blue>');
         $this->cli->out('    - 关闭: /path/to/fp-devtool server stop <light_red>moduleName</light_red>');

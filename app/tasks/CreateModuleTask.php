@@ -1,16 +1,13 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
+use Ph\{Di, App};
+use PhalconPlus\Enum\Sys;
+use PhalconPlus\Enum\RunMode;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 
-class CreateModuleTask extends \Phalcon\CLI\Task
+class CreateModuleTask extends BaseTask
 {
-    protected $modes = [
-        "Web" => "Module",
-        "Srv" => "Srv",
-        "Cli" => "Task",
-    ];
-
     public function mainAction()
     {
         $this->cli->info('现在开始引导您创建Phalcon+模块 ...');
@@ -19,7 +16,7 @@ class CreateModuleTask extends \Phalcon\CLI\Task
         // ------ 获取模块的名字 -------
         $input = $this->cli->input("<green><bold>Step 1 </bold></green>请输入该模块的名称，如\"api\"" . PHP_EOL. "[Enter]:");
         $input->accept(function($response) use ($that){
-            $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
+            $filesystem = $that->filesystem;
             if ($filesystem->has($response)) {
                 $that->cli->backgroundRed("模块{$response}已经存在，请更换名称再试！");
                 return false;
@@ -36,17 +33,11 @@ class CreateModuleTask extends \Phalcon\CLI\Task
         $ns = $input->prompt();
 
         // ------ 获取模块的运行模式 -------
-        $modes = $this->modes;
-        $options  = array_keys($modes);
+        $options = RunMode::validValues();
         $input    = $this->cli->radio('<green><bold>Step 3 </bold></green>请选择' . $name . '模块的运行模式:', $options);
         do{
             $mode = $input->prompt();
         }while(empty($mode));
-
-        if(!isset($modes[$mode])) {
-            $this->cli->backgroundRed("致命错误：运行模式不存在，请重新选择！");
-            exit(1);
-        }
 
         // --------- 输入总结 -----------
         $this->cli->br()->info("您的输入如下：");
@@ -71,113 +62,65 @@ class CreateModuleTask extends \Phalcon\CLI\Task
     {
         $progress = $this->cli->progress()->total(100);
 
-        $modeMap = $this->modes;
+        $tempPath =  Sys::getPrimaryModuleDir()."/app/templates/apps";
+        $filesystem = new Filesystem(new LocalAdapter($tempPath));
 
-        $dirs = [
-            "app/config",
+        $cachePath = '/common/var/cache';
+        if(!$this->filesystem->has($cachePath."/{$mode}")) {
+            $this->filesystem->createDir($cachePath."/{$mode}");
+        }
+
+        $volt = App::volt($tempPath);
+        $params = [
+            "rootNs" => $ns,
+            "module" => $module,
+            "mode"   => $mode,
+            "moduleName" => \Phalcon\Text::camelize($module),
+            "port"   => mt_rand(8000, 9000),
+            "secKey" => (new \Phalcon\Security\Random())->base64Safe(18),
         ];
 
-        $files = [
-            "app/config/dev.php",
-            "app/" . $modeMap[$mode] . ".php",
-        ];
+        $list = $filesystem->listContents("/{$mode}", true);
 
-        if($mode == "Cli") {
-            $dirs[] = "bin";
-            $files[] = "bin/main.php";
-        } else {
-            $dirs[]  = "public";
-            $files[] = "public/index.php";
-            $files[] =  ".htrouter.php";
+        foreach($list as $item) {
+            if($item['type'] == 'dir') {
+                $path = $cachePath."/{$item['path']}";
+                if(!$this->filesystem->has($path)) {
+                    $this->filesystem->createDir($path);
+                }
+            } elseif($item['type'] == 'file' && $item['extension'] == 'volt') {
+                $source = $tempPath."/{$item['path']}";
+                $target = $cachePath."/{$item['dirname']}/{$item['filename']}";
+                if(substr($target, -3) == "php") {
+                    ob_start();
+                    $volt->render($source, $params, true);
+                    $content = "<?php\n".$volt->getContent();
+                    ob_end_clean();
+                } else {
+                    $content = $filesystem->read("/{$item['path']}");
+                }
+                $this->filesystem->write($target, $content);
+            }
         }
-
-        if($mode == "Web") {
-            $dirs[] = "app/controllers";
-            $dirs[] = "app/controllers/apis";
-            $dirs[] = "app/views/index";
-            $files[] = "app/controllers/IndexController.php";
-            $files[] = "app/controllers/ErrorController.php";
-            $files[] = "app/controllers/apis/DemoController.php";
-        } elseif ($mode == "Srv") {
-            $dirs[] = "app/services";
-            $dirs[] = "app/tasks";
-            $dirs[] = "app/tasks/tasks";
-            $dirs[] = "app/models";
-            $files[] = "app/services/DummyService.php";
-            $files[] = "app/tasks/init.php";
-            $files[] = "app/tasks/tasks/HelloTask.php";
-        } elseif($mode == "Cli") {
-            $dirs[] = "app/tasks";
-            $files[] = "app/tasks/HelpTask.php";
-        }
-
-        // 假装在做事情
-        usleep(100000);
-        $progress->advance(20); // Adds 10 to the current progress
-
-        $filesystem = new Filesystem(new LocalAdapter(APP_ROOT_DIR));
-
-        foreach ($dirs as $dir) {
-            $filesystem->createDir($module."/".$dir);
-        }
-
+        
         // 假装在做事情
         usleep(150000);
-        $progress->advance(30); // Adds 10 to the current progress
-
-        $viewPath = "common/app/templates/";
-        $cachePath = $viewPath . "compiled/";
-
-        $filesystem->createDir($cachePath);
-
-        $di = $this->getDI();
-
+        $progress->advance(30);
+        // 假装在做事情
         usleep(50000);
         $progress->advance(10);
-
-        // 初始化模板
-        $view = new \Phalcon\Mvc\View();
-        $view->setDI($this->getDI());
-        $view->setViewsDir(APP_ROOT_DIR . $viewPath);
-
-        $view->registerEngines(array(
-            ".volt" => function() use ($view, $di, $cachePath) {
-                $volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
-                $volt->setOptions(array(
-                    "compiledPath"      => APP_ROOT_DIR . $cachePath,
-                    "compiledExtension" => ".compiled",
-                    "compiledAlways"    => true
-                ));
-                $compiler = $volt->getCompiler();
-                $compiler->addExtension(new \PhalconPlus\Volt\Extension\PhpFunction());
-                return $volt;
-            }
-        ));
-
         // 假装在做事情
         usleep(100000);
         $progress->advance(20);
-        // 生成文件
-        foreach ($files as $file) {
-            $fileName = basename($file);
 
-            $view->setVar("rootNs", $ns);
-            $view->setVar("module", $module);
-            $view->setVar("mode", $mode);
-            $view->setVar("moduleName", \Phalcon\Text::camelize($module));
-
-            $view->start();
-            $view->render("generator", $fileName);
-            $view->finish();
-
-            $filesystem->write($module."/".$file, "<?php\n".$view->getContent());
-        }
-
-        $filesystem->deleteDir($cachePath);
+        $this->filesystem->deleteDir($cachePath."/compiled");
+        $this->filesystem->rename(
+            $cachePath."/{$mode}", 
+            "/{$module}"
+        );
 
         // 假装在做事情
         usleep(200000);
-
         $progress->advance(20);
         $this->cli->br()->info("... 恭喜，模块{$module}创建成功！");
     }
