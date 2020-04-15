@@ -22,7 +22,7 @@ return [
             "level" => \Phalcon\Logger::SPECIAL
         ]
     ],
-    'version' => "1.2.0",
+    'version' => "1.2.1",
 ];
 
 /* config.php ends here */
