@@ -32,12 +32,12 @@ class EnumExceptionCode extends EnumException
 
         self::UNKNOWN => [
             "message" => "未知错误",
-            "level" => EnumLoggerLevel::ERROR,
+            "level" => LoggerLevel::ERROR,
         ],
 
         self::SYSTEM_BUSY => [
             "message" => "系统繁忙",
-            "level" => EnumLoggerLevel::ERROR
+            "level" => LoggerLevel::ERROR
         ],
         
     ];
