@@ -23,5 +23,6 @@ class ServiceProvider implements ServiceProviderInterface
         }
         $di->register(new LoggerServiceProvider());
         $di->register(new VoltServiceProvider());
+        $di->register(new RpcServiceProvider());
     }
 }
