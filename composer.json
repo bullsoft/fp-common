@@ -3,5 +3,11 @@
     "type": "library",
     "authors": [
         {"name": "顾伟刚", "email": "guweigang@bullsoft.org"}
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "PHPPM\\Bridges\\PhalconPlus\\": "common/vendor/PHPPM",
+            "BullSoft\\": "common/vendor/BullSoft"
+        }
+    }
 }
