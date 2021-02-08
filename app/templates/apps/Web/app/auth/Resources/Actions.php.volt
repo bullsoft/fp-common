@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Auth\Resources;
 use Ph\{Acl, Sys};
-use Phalcon\Acl\Resource as AclResource;
+use Phalcon\Acl\Component as AclResource;
 use PhalconPlus\Contracts\Auth\Access\ResourceAware;
 use {{rootNs}}\Controllers\{
     IndexController,
@@ -33,7 +33,7 @@ class Actions implements ResourceAware
                 $methods = get_class_methods($classNameWithNs);
                 foreach($methods as $method) {
                     if(substr($method, -6) == 'Action') {
-                        Acl::addResource($resource, $method);
+                        Acl::addComponent($resource, $method);
                     }
                 }
             }

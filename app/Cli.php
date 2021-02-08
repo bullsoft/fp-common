@@ -12,7 +12,6 @@ class Cli extends AppModule
             __NAMESPACE__.'\\Tasks'     => __DIR__.'/tasks/',
             __NAMESPACE__."\\Library"   => __DIR__.'/library/',
             __NAMESPACE__."\\Providers" => __DIR__.'/providers/',
-            "Zend" => Sys::getCommonDir() . "/vendor/Zend/",
         ), true)->register();
     }
 

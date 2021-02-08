@@ -1,8 +1,8 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
-use PhalconPlus\RPC\Client\Adapter\{
+use PhalconPlus\Rpc\Client\Adapter\{
     Local as LocalRpc,
     Remote as RemoteRpc
 };

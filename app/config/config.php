@@ -19,7 +19,7 @@ return [
         ],
         [
             "filePath" => "/tmp/fp-devtool.log",
-            "level" => \Phalcon\Logger::SPECIAL
+            "level" => \Phalcon\Logger::CUSTOM
         ]
     ],
     'version' => "1.2.1",

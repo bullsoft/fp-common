@@ -20,7 +20,7 @@ return [
         ],
         [
             "filePath" => $def->getDir()."/var/log/all.log",
-            "level" => \Phalcon\Logger::SPECIAL
+            "level" => \Phalcon\Logger::CUSTOM
         ]
     ],
     'db' => [

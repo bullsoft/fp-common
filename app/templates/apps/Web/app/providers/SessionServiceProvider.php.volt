@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Session\Adapter\Redis as SessionRedis;
 use Phalcon\Storage\AdapterFactory;
@@ -15,13 +15,17 @@ class SessionServiceProvider implements ServiceProviderInterface
                 \Phalcon\Version::VERSION_MAJOR
             );
             if($version < 4) {
-                $session = new SessionRedis(Config::get('session')->toArray());
+                $session = new SessionRedis(Config::get('redis')->toArray());
                 $session->start();
                 return $session;
             } else {
-                $factory = new AdapterFactory();
-                $session = new SessionRedis($factory, Config::get('session')->toArray());
-                return $session;
+                $factory1 = new \Phalcon\Storage\SerializerFactory();
+                $factory2 = new AdapterFactory($factory1);
+
+                $sessionAdapter = new SessionRedis($factory2, Config::get('redis')->toArray());
+                $manager = new \Phalcon\Session\Manager(Config::get('session')->toArray());
+                $manager->setAdapter($sessionAdapter);
+                return $manager;
             }
         });
     }

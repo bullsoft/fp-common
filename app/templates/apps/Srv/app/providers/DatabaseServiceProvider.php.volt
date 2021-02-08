@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaData;
 

@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use PhalconPlus\Volt\Extension\PhpFunction as VoltPhpFunction;
@@ -14,20 +14,20 @@ class ViewServiceProvider implements ServiceProviderInterface
             $view = new \Phalcon\Mvc\View();
             $view->setViewsDir(Config::path('view.dir'));
             $view->registerEngines(array(
-                ".volt" => function($view, $di) {
-                    $volt = new VoltEngine($view, $di);
+                ".volt" => function($view) {
+                    $volt = new VoltEngine($view, $this);
                     $volt->setOptions(array(
-                        "compileAlways"     => true,
-                        "compiledPath"      => Config::path('view.compiledPath'),
-                        "compiledExtension" => Config::path('view.compiledExtension'),
+                        "always"     => true,
+                        "path"      => Config::path('view.path'),
+                        "extension" => Config::path('view.extension'),
                     ));
                     // 如果模板缓存目录不存在，则创建它
-                    if(!file_exists(Config::path('view.compiledPath'))) {
-                        mkdir(Config::path('view.compiledPath'), 0777, true);
+                    if(!file_exists(Config::path('view.path'))) {
+                        mkdir(Config::path('view.path'), 0777, true);
                     }
                     $compiler = $volt->getCompiler();
                     $ext = new VoltPhpFunction();
-                    $ext->setCustNamespace("LightCloud\\Uc\\Plugins\\");
+                    $ext->setCustNamespace("{{rootNs}}\\Plugins\\");
                     $compiler->addExtension($ext);
                     return $volt;
                 }

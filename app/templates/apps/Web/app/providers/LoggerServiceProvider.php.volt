@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\Logger\MultipleFile as MulitFileLogger;
 use PhalconPlus\Logger\Processor\Trace as TraceProcessor;
@@ -19,9 +19,9 @@ class LoggerServiceProvider implements ServiceProviderInterface
             $logger->addProcessor("logId", new LogIdProcessor(18));
             $logger->addProcessor("trace", new TraceProcessor(TraceProcessor::T_CLASS));
             // Add formatter
-            $formatter = new LineFormatter("[%date%][{trace}][{logId}][%type%] %message%");
-            $formatter->setDateFormat("Y-m-d H:i:s");
-            $logger->setFormatter($formatter);
+            // $formatter = new LineFormatter("[%date%][{trace}][{logId}][%type%] %message%");
+            // $formatter->setDateFormat("Y-m-d H:i:s");
+            // $logger->setFormatter($formatter);
             return $logger;
         });
     }

@@ -1,6 +1,5 @@
 namespace {{rootNs}};
 
-use GuzzleHttp\Psr7\ServerRequest;
 use PhalconPlus\Enum\RunEnv;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
 use PhalconPlus\Mvc\PsrApplication;
@@ -53,8 +52,7 @@ class Module extends AppModule
     public function registerEngine($request = null) : AppModule
     {
         if($this->isPrimary() && $this->isWeb()) {
-            $serverRequest = $request ?: ServerRequest::fromGlobals();
-            $handler = new PsrApplication($serverRequest, $this->di());
+            $handler = new MvcApplication($this->di());
             $custEngine = new WebEngine($this, $handler);
             $this->engine = $custEngine;
         } else {

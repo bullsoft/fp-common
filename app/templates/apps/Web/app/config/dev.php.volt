@@ -27,8 +27,8 @@ return [
     ],
     "view" => [
         "dir" => $def->getDir() . "/app/views/",
-        "compiledPath"      => $def->getDir()."/var/cache/view-compiled/",
-        "compiledExtension" => ".compiled",
+        "path"      => $def->getDir()."/var/cache/view-compiled/",
+        "extension" => ".compiled",
     ],
     "logger" => [
         [
@@ -37,7 +37,7 @@ return [
         ],
         [
             "filePath" => $def->getDir()."/var/log/all.log",
-            "level" => \Phalcon\Logger::SPECIAL
+            "level" => \Phalcon\Logger::CUSTOM
         ]
     ],
     'db' => [
@@ -58,17 +58,15 @@ return [
     ],
     "session" => [
         "uniqueId"   => "{{module}}-app",
-        "host"       => "127.0.0.1",
-        "port"       => 6379,
+    ],
+    "redis" => [
+        'host' => "127.0.0.1",
+        "port" => 6379，
         "auth"       => "",
         "persistent" => false,
         "lifetime"   => 3600,
         "prefix"     => "my",
         "index"      => 0,
-    ],
-    "redis" => [
-        'host' => "127.0.0.1",
-        "port" => 6379
     ],
 ];
 

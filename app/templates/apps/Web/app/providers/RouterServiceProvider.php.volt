@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
 use Phalcon\Mvc\Router as MvcRouter;
@@ -22,7 +22,6 @@ class RouterServiceProvider implements ServiceProviderInterface
             $di->setShared('router', function () {
                 $router = new MvcRouter(false);
                 $router->removeExtraSlashes(true);
-                $router->setUriSource(MvcRouter::URI_SOURCE_SERVER_REQUEST_URI);
                 $router->mount(new \{{rootNs}}\Routes\Bare());
                 $router->mount(new \{{rootNs}}\Routes\Api());
                 return $router;
