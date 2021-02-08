@@ -27,7 +27,7 @@ class ViewServiceProvider implements ServiceProviderInterface
                     }
                     $compiler = $volt->getCompiler();
                     $ext = new VoltPhpFunction();
-                    $ext->setCustNamespace("LightCloud\\Uc\\Plugins\\");
+                    $ext->setCustNamespace("{{rootNs}}\\Plugins\\");
                     $compiler->addExtension($ext);
                     return $volt;
                 }
