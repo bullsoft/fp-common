@@ -30,11 +30,13 @@ class AppHandler implements EventAttachable
 
     public function boot(Event $event, PhApp $app)
     {
+        Log::info("application:boot");
         (new AclResources())->register();
     }
 
     public function beforeHandleRequest(Event $event, PhApp $application, Dispatcher $dispatcher)
     {
+        Log::info("application:before handler request");
         Session::start();
         if(Request::has('sessionId')) {
             Session::setId(Request::get('sessionId')); 
@@ -75,6 +77,7 @@ class AppHandler implements EventAttachable
 
     public function beforeSendResponse(Event $event, PhApp $application, Response $response)
     {
+        Log::info("application:before send response");
         $response->setHeader("X-CSRF-TOKEN", Security::getTokenKey() .','. Security::getToken());
         $crypted = App::crypt()->encryptBase64(Security::getToken(), null, true);
         $tokenName = Config::path('application.cookie.token_name');

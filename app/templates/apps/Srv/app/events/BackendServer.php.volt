@@ -30,7 +30,7 @@ class BackendServer implements EventAttachable
     public function beforeDispatch(Event $event, AbstractServer $server, array $context)
     {
 		// [service, method, request]
-	}
+	  }
 
     public function afterDispatch(Event $event, AbstractServer $server, array $context)
     {

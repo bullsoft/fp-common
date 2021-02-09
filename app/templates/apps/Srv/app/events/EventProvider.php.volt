@@ -9,7 +9,6 @@ class EventProvider implements EventAttachable
 
     protected $events = [
         "superapp"    => SuperApp::class,
-        "router"      => Router::class,
         "db"          => Db::class,
     ];
 

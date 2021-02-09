@@ -2,6 +2,7 @@ namespace {{rootNs}}\Events;
 
 use Phalcon\Events\Event;
 use PhalconPlus\Contracts\EventAttachable;
+use Phalcon\Acl\Adapter\AbstractAdapter;
 use Ph\{
     EventsManager,
     Acl as PhAcl,
@@ -20,7 +21,7 @@ class Acl implements EventAttachable
         EventsManager::attach("acl", $this);
     }
 
-    public function beforeCheckAccess(Event $event, \Phalcon\Acl\Adapter $acl)
+    public function beforeCheckAccess(Event $event, AbstractAdapter $acl)
     {
         // 
     }

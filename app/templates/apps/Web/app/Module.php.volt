@@ -2,7 +2,7 @@ namespace {{rootNs}};
 
 use PhalconPlus\Enum\RunEnv;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
-use PhalconPlus\Mvc\PsrApplication;
+use Phalcon\Mvc\Application as MvcApplication;
 use PhalconPlus\App\Engine\Web as WebEngine;
 
 use {{rootNs}}\Providers\ServiceProvider;

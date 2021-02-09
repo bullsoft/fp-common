@@ -112,8 +112,8 @@ class MvcDispatch implements EventAttachable, DispatchEvent
         //     $exceptionClass = \Phalcon\Dispatcher\Exception::class;
         // }
         switch ($exception->getCode()) {
-            case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
-            case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
+            case Dispatcher\Exception::EXCEPTION_HANDLER_NOT_FOUND:
+            case Dispatcher\Exception::EXCEPTION_ACTION_NOT_FOUND:
                 $dispatcher->forward(array(
                     'controller' => 'error',
                     'action'     => 'show404'
