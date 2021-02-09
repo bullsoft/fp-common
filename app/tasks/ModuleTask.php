@@ -4,7 +4,7 @@ namespace PhalconPlus\DevTools\Tasks;
 use PhalconPlus\DevTools\Library\Process;
 use Ph\Sys;
 
-class ModuleTask extends BaseTasK
+class ModuleTask extends BaseTask
 {
     public function mainAction()
     {
