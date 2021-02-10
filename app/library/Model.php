@@ -45,7 +45,7 @@ class Model
             mkdir($modelDir, 0777, true);
         }
 
-        $filePath = $modelDir . "/BaseModel.php";
+        $filePath = $this->dir . "/BaseModel.php";
         if(!is_file($filePath)) {
             $tempPath = Sys::getPrimaryModuleDir() . "/app/templates/generator/BaseModel.php.volt";
             $modelBaseTemplate = file_get_contents($tempPath);
@@ -53,7 +53,7 @@ class Model
                 "<<<namespace>>>",
             ];
             $replacements = [
-                $this->getNamespace($dbAsNamespace)
+                $this->getNamespace(false)
             ];
             $modelBaseClass = str_replace($tokens, $replacements, $modelBaseTemplate);
             file_put_contents($filePath, "<?php\n" . $modelBaseClass);
@@ -92,7 +92,7 @@ class Model
         } else {
             $generator = (new ClassGenerator())
                 ->setName($className)
-                ->setExtendedClass("\\".$namespace."\\BaseModel");
+                ->setExtendedClass("\\".$this->getNamespace(false)."\\BaseModel");
         }
         // DocBlock
         $docblock = DocBlockGenerator::fromArray(array(

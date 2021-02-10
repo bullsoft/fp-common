@@ -11,7 +11,7 @@ use {{rootNs}}\Exceptions\UserAlreadyExistsException;
 /**
  * Phalcon Model: UserModel
  *
- * 此文件由代码自动生成，代码依赖PhalconPlus和Zend\Code\Generator
+ * 此文件由代码自动生成，代码依赖PhalconPlus和Laminas\Code\Generator
  *
  * @namespace LightCloud\Uc\Models
  * @table user
