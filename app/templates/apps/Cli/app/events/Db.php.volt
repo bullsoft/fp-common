@@ -3,6 +3,7 @@ namespace {{rootNs}}\Events;
 use Ph\EventsManager;
 use Phalcon\Events\Event;
 use PhalconPlus\Contracts\EventAttachable;
+use Phalcon\Db\Adapter\Pdo\AbstractPdo as PdoAdapter;
 
 class Db implements EventAttachable
 {
@@ -19,7 +20,7 @@ class Db implements EventAttachable
         EventsManager::attach("db", $this);
     }
 
-    public function beforeQuery(Event $event, \Phalcon\Db\Adapter $pdo, $context = null)
+    public function beforeQuery(Event $event, PdoAdapter $pdo, $context = null)
     {
         // 
     }

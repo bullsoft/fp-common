@@ -2,10 +2,10 @@
 namespace PhalconPlus\DevTools\Library;
 use PhalconPlus\App\Module\ModuleDef;
 use PhalconPlus\Enum\Sys;
-use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Reflection\ClassReflection;
-use Zend\Code\Generator\FileGenerator;
-use Zend\Code\Generator\DocBlockGenerator;
+use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Reflection\ClassReflection;
+use Laminas\Code\Generator\FileGenerator;
+use Laminas\Code\Generator\DocBlockGenerator;
 use Ph\{Di, Config};
 
 class Model
@@ -47,7 +47,7 @@ class Model
 
         $filePath = $modelDir . "/BaseModel.php";
         if(!is_file($filePath)) {
-            $tempPath = Sys::getPrimaryModuleDir() . "/app/templates/generator/ModelBase.php.volt";
+            $tempPath = Sys::getPrimaryModuleDir() . "/app/templates/generator/BaseModel.php.volt";
             $modelBaseTemplate = file_get_contents($tempPath);
             $tokens = [
                 "<<<namespace>>>",
@@ -85,7 +85,7 @@ class Model
                     $generator->removeConstant($key);
                 }
             }
-            $uses = $cr->getDeclaringFile()->getUses();
+            $uses = $generator->getUses();
             foreach($uses as $statement) {
                 $generator->addUse($statement['use'], $statement['as']);
             }
@@ -97,7 +97,7 @@ class Model
         // DocBlock
         $docblock = DocBlockGenerator::fromArray(array(
             'shortDescription' => 'Phalcon Model: ' . $className,
-            'longDescription'  => '此文件由代码自动生成，代码依赖PhalconPlus和Zend\Code\Generator',
+            'longDescription'  => '此文件由代码自动生成，代码依赖PhalconPlus和Laminas\Code\Generator',
             'tags' => array(
                 array(
                     'name'        => 'namespace',

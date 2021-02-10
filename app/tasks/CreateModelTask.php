@@ -2,9 +2,9 @@
 namespace PhalconPlus\DevTools\Tasks;
 
 
-use Zend\Code\Generator\DocBlockGenerator;
-use Zend\Code\Generator\PropertyGenerator;
-use Zend\Code\Generator\MethodGenerator;
+use Laminas\Code\Generator\DocBlockGenerator;
+use Laminas\Code\Generator\PropertyGenerator;
+use Laminas\Code\Generator\MethodGenerator;
 
 use PhalconPlus\DevTools\Library\Model;
 
@@ -75,7 +75,7 @@ class CreateModelTask extends BaseTask
             // Print
             $padding->label($generator->getName())->result($file->getFilename());
             // Columns
-            $columns = $connection->fetchAll("DESC `$table`", \Phalcon\Db::FETCH_ASSOC);
+            $columns = $connection->fetchAll("DESC `$table`", \Phalcon\Db\Enum::FETCH_ASSOC);
             $columnsDefaultMap = $this->getDefaultValuesMap($columns);
             // Body of `onConstruct()` and `columnMap()`
             $onConstructBody = "";
@@ -157,27 +157,30 @@ class CreateModelTask extends BaseTask
                     array(),
                     MethodGenerator::FLAG_PUBLIC,
                     'parent::initialize();' . "\n" .
+                    '$this->setSource("'.$table.'");'.
                     '$this->setWriteConnectionService("'. $dbService .'");' . "\n" .
                     '$this->setReadConnectionService("'.$dbService."Read".'");'
                 );
             }
             // getSource()
-            $methodGenerator4 = new \Zend\Code\Generator\MethodGenerator(
-                'getSource',
-                array(),
-                MethodGenerator::FLAG_PUBLIC,
-                "return '{$table}';\n",
-                DocBlockGenerator::fromArray(array(
-                    'shortDescription' => 'return related table name',
-                    'longDescription'  => null,
+            // $methodGenerator4 = new MethodGenerator(
+            //     'getSource',
+            //     array(),
+            //     MethodGenerator::FLAG_PUBLIC,
+            //     "return '{$table}';\n",
+            //     DocBlockGenerator::fromArray(array(
+            //         'shortDescription' => 'return related table name',
+            //         'longDescription'  => null,
 
-                ))
-            );
-            $methodGenerator4->setReturnType("string");
-            $generator->addMethodFromGenerator($methodGenerator4);
+            //     ))
+            // );
+            // $methodGenerator4->setReturnType("string");
+            // $generator->addMethodFromGenerator($methodGenerator4);
             // Write to file
             $file->write();
         }
+        $this->cli->br()->info("将命名空间加入autoloader以发现Model相关的类: ");
+        $this->cli->info("<red>".$model->getNamespace($useDbAsNamespace) . " -> ".$model->getDir($useDbAsNamespace)."/</red>");
         $this->cli->br()->info("... 恭喜您，创建成功！");
     }
 
