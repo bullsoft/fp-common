@@ -47,7 +47,7 @@ class Model
 
         $filePath = $modelDir . "/BaseModel.php";
         if(!is_file($filePath)) {
-            $tempPath = Sys::getPrimaryModuleDir() . "/app/templates/generator/ModelBase.php.volt";
+            $tempPath = Sys::getPrimaryModuleDir() . "/app/templates/generator/BaseModel.php.volt";
             $modelBaseTemplate = file_get_contents($tempPath);
             $tokens = [
                 "<<<namespace>>>",
