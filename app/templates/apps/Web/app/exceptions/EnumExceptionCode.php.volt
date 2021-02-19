@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Exceptions;
 use PhalconPlus\Enum\Exception as EnumException;
-use App\Com\Protos\EnumLoggerLevel;
+use App\Com\Protos\Enums\LoggerLevel;
 
 /** 
  * 建议从一个比较大的数字起，框架占用了 [0, 10000) 以内的异常码
@@ -19,7 +19,7 @@ class EnumExceptionCode extends EnumException
     protected static $details = [
         self::UNKNOWN => [
             "message" => "未知错误",
-            "level" => EnumLoggerLevel::ERROR,
+            "level" => LoggerLevel::ERROR,
         ],
     ];
    
