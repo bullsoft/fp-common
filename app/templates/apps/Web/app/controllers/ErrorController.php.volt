@@ -1,5 +1,5 @@
 namespace {{rootNs}}\Controllers;
-use Ph\Router;
+use Ph\Request;
 
 class ErrorController extends BaseController
 {
@@ -9,7 +9,7 @@ class ErrorController extends BaseController
 
     public function show404Action()
     {
-        $this->view->setVar("notFoundUrl", Router::getRewriteUri());
+        $this->view->setVar("notFoundUrl", Request::getURI(true));
     }
 
     public function show403Action()
