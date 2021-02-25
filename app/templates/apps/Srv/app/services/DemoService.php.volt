@@ -5,6 +5,6 @@ class DemoService extends BaseService
 {
     public function main(SimpleRequest $request)
     {
-    	return $request->toArray();
+    	return $request->toArray() + ["successful" => true];
     }
 }

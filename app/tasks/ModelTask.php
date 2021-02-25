@@ -64,7 +64,7 @@ class ModelTask extends BaseTask
         $newList = [];
         foreach($list as $item) {
             if($item["type"] == "dir") {
-                $subList = $filesystem->listContents($modelPath. $item["filename"] . "/");
+                $subList = $filesystem->listContents($modelPath. "/" . $item["filename"] . "/");
                 foreach($subList as $subItem) {
                     if($subItem['filename'] == "ModelBase" || $subItem['filename'] == "BaseModel") continue;
                     $classname = $modelClassName. $item["filename"] . "\\" . $subItem['filename'];
@@ -92,6 +92,10 @@ class ModelTask extends BaseTask
 
     public function findAction($argv)
     {
+        global $version;
+        if($version > 3) {
+            $argv = func_get_args();
+        }
         if(count($argv) < 2) {
             $this->cli->backgroundRed("请指定模块名称和模型名称！");
             exit(1);

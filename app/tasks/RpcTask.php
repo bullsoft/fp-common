@@ -27,14 +27,15 @@ class RpcTask extends BaseTask
         $args = isset($argv[2])?json_decode($argv[2], true):[];
 
 
-        $this->cli->blue("====== RPC Target ======");
-        $this->cli->text("{$service}");
-        $this->cli->blue("====== Request ======");
+        $this->cli->red("====== RPC Start ======");
+        $this->cli->text("Target Service: {$service}")->br();
+        $this->cli->green("###### Request ######");
         var_export($args);
 
         $ret = App::rpc($name, $service, $args);
        
-        $this->cli->br()->blue("====== Response ======");
+        $this->cli->br()->green("###### Response ######");
         var_export($ret);
+        $this->cli->br()->red("====== RPC End ======");
     }
 }

@@ -29,11 +29,11 @@ class Model
     {
         $namespace = $this->def->config()->path("application.ns");
         $modelNs = rtrim($namespace, '\\');
+        $modelNs .= "\\Models";
         if($dbAsNamespace == true && !empty($this->dbName)) {
             $dbName = \Phalcon\Text::camelize($this->dbName);
             $modelNs .= '\\' . $dbName;
         }
-        $modelNs .= "\\Models";
         return $modelNs;
     }
 
