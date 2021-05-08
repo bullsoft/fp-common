@@ -75,50 +75,56 @@ class CreateModelTask extends BaseTask
             // Print
             $padding->label($generator->getName())->result($file->getFilename());
             // Columns
-            $columns = $connection->fetchAll("DESC `$table`", \Phalcon\Db\Enum::FETCH_ASSOC);
-            $columnsDefaultMap = $this->getDefaultValuesMap($columns);
+            $columns = $connection->describeColumns($table);
+            // $indexes = $connection->describeIndexes($table);
             // Body of `onConstruct()` and `columnMap()`
             $onConstructBody = "";
             $columnMapBody = "return [\n";
 
             foreach($columns as $column) {
-                $columnName = $column['Field'];
+                $columnName = $column->getName();
                 if(false !== strpos($columnName, "_")) {
                     $camelizeColumnName = lcfirst(\Phalcon\Text::camelize($columnName));
                 } else {
                     $camelizeColumnName = $columnName;
                 }
+                $defaultValue = $this->getDefaultValue($column);
+                $columnType = $this->getTypeDesc($column->getType())[0];
                 $onConstructBody .= '$this->'.$camelizeColumnName
-                                 . ' = ' . var_export($columnsDefaultMap[$columnName], true)
+                                 . ' = ' . $defaultValue
                                  . ";\n";
                 $columnMapBody .= "    '{$columnName}' => '{$camelizeColumnName}', \n";
                 $property = PropertyGenerator::fromArray(array(
                     'name' => $columnName,
-                    'defaultvalue' => $columnsDefaultMap[$columnName],
+                    'defaultvalue' => null,
                     'flags' => PropertyGenerator::FLAG_PUBLIC,
                     'docblock' => array(
                         'shortDescription' => '',
                         'tags' => array(
                             array(
                                 'name' => 'Type',
-                                'description' => $column['Type'],
+                                'description' => $columnType,
                             ),
                             array(
-                                'name' => 'Null',
-                                'description' => $column['Null'],
+                                'name' => 'Primary',
+                                'description' => var_export($column->isPrimary(), true),
+                            ),
+                            array(
+                                'name' => 'AutoIncrement',
+                                'description' => var_export($column->isAutoIncrement(), true),
+                            ),
+                            array(
+                                'name' => 'Not-Null?',
+                                'description' => var_export($column->isNotNull(), true),
                             ),
                             array(
                                 'name' => 'Default',
-                                'description' => $column['Default'],
+                                'description' => var_export($column->getDefault(), true),
                             ),
                             array(
-                                'name' => 'Key',
-                                'description' => $column['Key'],
-                            ),
-                            array(
-                                'name' => 'Extra',
-                                'description' => $column['Extra'],
-                            ),
+                                'name' => 'Comment',
+                                'description' => var_export($column->getComment(), true),
+                            )
                         )
                     ),
                 ));
@@ -157,25 +163,11 @@ class CreateModelTask extends BaseTask
                     array(),
                     MethodGenerator::FLAG_PUBLIC,
                     'parent::initialize();' . "\n" .
-                    '$this->setSource("'.$table.'");'.
+                    '$this->setSource("'.$table.'");' . "\n" .
                     '$this->setWriteConnectionService("'. $dbService .'");' . "\n" .
                     '$this->setReadConnectionService("'.$dbService."Read".'");'
                 );
             }
-            // getSource()
-            // $methodGenerator4 = new MethodGenerator(
-            //     'getSource',
-            //     array(),
-            //     MethodGenerator::FLAG_PUBLIC,
-            //     "return '{$table}';\n",
-            //     DocBlockGenerator::fromArray(array(
-            //         'shortDescription' => 'return related table name',
-            //         'longDescription'  => null,
-
-            //     ))
-            // );
-            // $methodGenerator4->setReturnType("string");
-            // $generator->addMethodFromGenerator($methodGenerator4);
             // Write to file
             $file->write();
         }
@@ -184,48 +176,69 @@ class CreateModelTask extends BaseTask
         $this->cli->br()->info("... 恭喜您，创建成功！");
     }
 
-    private function getTypeString($type)
+    private function getDefaultValue($column)
+    {
+        if($column->hasDefault()) {
+            switch($column->getType()) {
+                case \Phalcon\Db\Column::TYPE_DATE:
+                    return 'date("Y-m-d")';
+                case \Phalcon\Db\Column::TYPE_TIMESTAMP:
+                case \Phalcon\Db\Column::TYPE_DATETIME:
+                    return 'date("Y-m-d H:i:s")';
+                case \Phalcon\Db\Column::TYPE_TIME:
+                    return 'date("H:i:s")';
+                default:
+                    return var_export($column->getDefault(), true);
+            }
+        } else {
+            return var_export($this->getTypeDesc($column->getType())[1], true);
+        }
+    }
+
+    private function getTypeDesc($type)
     {
         switch ($type) {
             case \Phalcon\Db\Column::TYPE_BIGINTEGER:
             case \Phalcon\Db\Column::TYPE_INTEGER:
-                return "integer";
+            case \Phalcon\Db\Column::TYPE_TINYINTEGER:
+            case \Phalcon\Db\Column::TYPE_SMALLINTEGER:
+            case \Phalcon\Db\Column::TYPE_MEDIUMINTEGER:
+                return ["integer", 0];
             case \Phalcon\Db\Column::TYPE_DATE:
+                return ["date", "1000-01-01"];
             case \Phalcon\Db\Column::TYPE_TIMESTAMP:
+                return ["timestamp", "1970-01-01 00:00:01"];
             case \Phalcon\Db\Column::TYPE_DATETIME:
-                return "datetime";
+                return ["datetime", "1000-01-01 00:00:00"];
+            case \Phalcon\Db\Column::TYPE_TIME:
+                return ["time", "00:00:00"];
             case \Phalcon\Db\Column::TYPE_CHAR:
             case \Phalcon\Db\Column::TYPE_TEXT:
+            case \Phalcon\Db\Column::TYPE_TINYTEXT:
+            case \Phalcon\Db\Column::TYPE_MEDIUMTEXT:
+            case \Phalcon\Db\Column::TYPE_LONGTEXT:
             case \Phalcon\Db\Column::TYPE_VARCHAR:
-                return "string";
+                return ["string", ''];
             case \Phalcon\Db\Column::TYPE_FLOAT:
             case \Phalcon\Db\Column::TYPE_DOUBLE:
             case \Phalcon\Db\Column::TYPE_DECIMAL:
-                return "float";
+                return ["float", 0.00];
             case \Phalcon\Db\Column::TYPE_BOOLEAN:
-                return "bool";
+                return ["bool", null];
             case \Phalcon\Db\Column::TYPE_TINYBLOB:
             case \Phalcon\Db\Column::TYPE_BLOB:
             case \Phalcon\Db\Column::TYPE_MEDIUMBLOB:
             case \Phalcon\Db\Column::TYPE_LONGBLOB:
-                return "blob";
+                return ["blob", null];
             case \Phalcon\Db\Column::TYPE_JSON:
             case \Phalcon\Db\Column::TYPE_JSONB:
-                return "json";
+                return ["json", null];
+            case \Phalcon\Db\Column::TYPE_BIT:
+                return ["bit", null];
+            case \Phalcon\Db\Column::TYPE_ENUM:
+                return ["enum", null];
             default:
-                return "unknown";
+                return ["unknown", null];
         }
-    }
-
-    private function getDefaultValuesMap($columns)
-    {
-        $ret = array();
-        foreach ($columns as $item) {
-            if(in_array($item['Type'], ['timestamp', 'date', 'datetime']) && $item['Default'] == 'CURRENT_TIMESTAMP') {
-                $item['Default'] = '1001-01-01 00:00:00';
-            }
-            $ret[$item['Field']] = $item['Default'];
-        }
-        return $ret;
     }
 }
