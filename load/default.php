@@ -10,7 +10,7 @@ $app = $superapp;
 
 // register global class-dirs, class-namespace and class-prefix
 $globalNs = $config->namespace->toArray();
-$loader->registerNamespaces($globalNs)
+$loader->setNamespaces($globalNs, true)
        ->register();
 
 

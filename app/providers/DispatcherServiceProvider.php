@@ -1,7 +1,7 @@
 <?php
 namespace PhalconPlus\DevTools\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 
 use Ph\{Config,};
