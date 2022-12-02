@@ -75,10 +75,12 @@ class CreateModuleTask extends BaseTask
             "rootNs" => $ns,
             "module" => $module,
             "mode"   => $mode,
-            "moduleName" => \Phalcon\Text::camelize($module),
+            "moduleName" => App::helper()->camelize($module),
             "port"   => mt_rand(8000, 9000),
-            "secKey" => (new \Phalcon\Security\Random())->base64Safe(18),
+            "secKey" => App::security()->getRandom()->base64Safe(18),
         ];
+
+        $progress->advance(20, "=");
 
         $list = $filesystem->listContents("/{$mode}", true);
 
@@ -105,13 +107,13 @@ class CreateModuleTask extends BaseTask
         
         // 假装在做事情
         usleep(150000);
-        $progress->advance(30);
+        $progress->advance(30, "=");
         // 假装在做事情
         usleep(50000);
-        $progress->advance(10);
+        $progress->advance(10, "=");
         // 假装在做事情
         usleep(100000);
-        $progress->advance(20);
+        $progress->advance(20, "=");
 
         $this->filesystem->deleteDir($cachePath."/compiled");
         $this->filesystem->rename(
@@ -121,7 +123,7 @@ class CreateModuleTask extends BaseTask
 
         // 假装在做事情
         usleep(200000);
-        $progress->advance(20);
+        $progress->advance(20, "");
         $this->cli->br()->info("... 恭喜，模块{$module}创建成功！");
     }
 

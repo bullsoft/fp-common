@@ -11,7 +11,7 @@ class Module extends AppModule
 {
     public function registerAutoloaders()
     {
-        Di::get('loader')->registerNamespaces([
+        Di::get('loader')->setNamespaces([
             __NAMESPACE__.'\\Tasks'        => __DIR__.'/tasks/',
             __NAMESPACE__.'\\Exceptions'   => __DIR__.'/exceptions/',
             __NAMESPACE__.'\\Events'       => __DIR__.'/events/',

@@ -1,7 +1,7 @@
 <?php
 namespace PhalconPlus\DevTools\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
 use Ph\{Config, App, };

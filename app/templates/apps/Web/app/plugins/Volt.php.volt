@@ -1,7 +1,8 @@
 namespace {{rootNs}}\Plugins;
+use Phalcon\Di\Injectable as DiInjectable;
 use Ph\{Security, };
 
-class Volt extends \Phalcon\Di\Injectable
+class Volt extends DiInjectable
 {
     public static function csrfToken()
     {

@@ -1,11 +1,14 @@
 #!/usr/bin/env php
 <?php
+use Phalcon\Support\Version;
+use PhalconPlus\Bootstrap;
+
 date_default_timezone_set('Asia/Shanghai');
 ini_set("memory_limit", "4G");
 
-$app = (new PhalconPlus\Bootstrap(dirname(__DIR__)))->app();
-$version = Phalcon\Version::getPart(
-    Phalcon\Version::VERSION_MAJOR
+$app = (new Bootstrap(dirname(__DIR__)))->app();
+$version = (new Version())->getPart(
+    Version::VERSION_MAJOR
 );
 $app->di()->setShared('cli', function(){
     return new League\CLImate\CLImate();
@@ -26,11 +29,11 @@ foreach($argv as $k => $arg) {
         } else {
             [$task, $action] = explode(":", $arg);
             $arguments['task'] = $task;
-            $arguments['action'] = \Phalcon\Text::camelize($action, "-");
+            $arguments['action'] = $app->helper()->camelize($action, "-");
         }
     } elseif($k == 2) {
         if(!isset($arguments['action'])) {
-            $arguments['action'] = \Phalcon\Text::camelize($arg, "-");
+            $arguments['action'] = $app->helper()->camelize($arg, "-");
         } else {
             $arguments['params'][] = $arg;    
         }

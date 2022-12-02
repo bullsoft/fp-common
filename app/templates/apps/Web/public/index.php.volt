@@ -1,9 +1,11 @@
 use PhalconPlus\Bootstrap;
 use {{rootNs}}\Exceptions\Handler as ExceptionHandler;
+use GuzzleHttp\Psr7\ServerRequest;
 
 try {
     $app = (new Bootstrap(dirname(__DIR__)))->app();
-    $response = $app->handle();
+    $serverRequest = ServerRequest::fromGlobals();
+    $response = $app->handle($serverRequest);
 } catch(Throwable $e) {
     ExceptionHandler::catch($e);
     if(isset($app)) {

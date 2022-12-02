@@ -5,6 +5,7 @@
 // $config         -- the Phalcon\Config object
 // $superapp       -- superapp object
 // $loader         -- Phalcon\Loader object
+use Phalcon\Logger\Logger;
 
 return [
     'application' => [
@@ -15,11 +16,11 @@ return [
     "logger" => [
         [
             "filePath" => "/tmp/fp-devtool.log.debug",
-            "level" => \Phalcon\Logger::DEBUG
+            "level" => Logger::DEBUG
         ],
         [
             "filePath" => "/tmp/fp-devtool.log",
-            "level" => \Phalcon\Logger::SPECIAL
+            "level" => Logger::CUSTOM
         ]
     ],
     'version' => "1.2.1",

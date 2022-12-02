@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\Logger\MultipleFile as MulitFileLogger;
 use PhalconPlus\Logger\Processor\Trace as TraceProcessor;

@@ -1,7 +1,7 @@
 <?php
 namespace PhalconPlus\DevTools\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Volt;
@@ -23,9 +23,9 @@ class VoltServiceProvider implements ServiceProviderInterface
             }
             $volt = new Volt($view, App::di());
             $volt->setOptions(array(
-                "compiledAlways" => true,
-                "compiledSeparator" => "#",
-                "compiledPath" => $compiledPath,
+                "always" => true,
+                "separator" => "#",
+                "path" => $compiledPath,
             ));
             return $volt;
         });

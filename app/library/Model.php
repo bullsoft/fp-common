@@ -2,11 +2,11 @@
 namespace PhalconPlus\DevTools\Library;
 use PhalconPlus\App\Module\ModuleDef;
 use PhalconPlus\Enum\Sys;
-use Zend\Code\Generator\ClassGenerator;
-use Zend\Code\Reflection\ClassReflection;
-use Zend\Code\Generator\FileGenerator;
-use Zend\Code\Generator\DocBlockGenerator;
-use Ph\{Di, Config};
+use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Reflection\ClassReflection;
+use Laminas\Code\Generator\FileGenerator;
+use Laminas\Code\Generator\DocBlockGenerator;
+use Ph\{Di, Config, App};
 
 class Model
 {
@@ -29,11 +29,11 @@ class Model
     {
         $namespace = $this->def->config()->path("application.ns");
         $modelNs = rtrim($namespace, '\\');
+        $modelNs .= "\\Models";
         if($dbAsNamespace == true && !empty($this->dbName)) {
-            $dbName = \Phalcon\Text::camelize($this->dbName);
+            $dbName = App::helper()->camelize($this->dbName);
             $modelNs .= '\\' . $dbName;
         }
-        $modelNs .= "\\Models";
         return $modelNs;
     }
 
@@ -46,8 +46,8 @@ class Model
         }
 
         $filePath = $modelDir . "/BaseModel.php";
-        if(!is_file($filePath)) {
-            $tempPath = Sys::getPrimaryModuleDir() . "/app/templates/generator/ModelBase.php.volt";
+        $tempPath = Sys::getPrimaryModuleDir() . "/app/templates/BaseModel.php.volt";
+        if(!is_file($filePath) && is_file($tempPath)) {
             $modelBaseTemplate = file_get_contents($tempPath);
             $tokens = [
                 "<<<namespace>>>",
@@ -64,7 +64,7 @@ class Model
     public function getDir(bool $dbAsNamespace = false)
     {
         if($dbAsNamespace == true && !empty($this->dbName)) {
-            $dbName = \Phalcon\Text::camelize($this->dbName);
+            $dbName = App::helper()->camelize($this->dbName);
             return $this->dir . '/' . $dbName;
         }
         return $this->dir;
@@ -72,7 +72,7 @@ class Model
 
     public function generateFromTable(string $table, bool $dbAsNamespace = false) : FileGenerator
     {
-        $className = \Phalcon\Text::camelize($table) . "Model";
+        $className = App::helper()->camelize($table) . "Model";
         $namespace = $this->getNamespace($dbAsNamespace);
         $filePath = $this->getDir($dbAsNamespace) . "/" . $className . Sys::EXT;
         $fullClassName = $namespace . '\\' . $className;

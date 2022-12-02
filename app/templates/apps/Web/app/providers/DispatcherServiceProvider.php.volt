@@ -1,9 +1,10 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
-
+use Phalcon\Cli\Dispatcher as CliDispatcher;
+use Phalcon\Mvc\Dispatcher as MvcDispatcher;
 use Ph\{Config,};
 
 class DispatcherServiceProvider implements ServiceProviderInterface
@@ -19,7 +20,7 @@ class DispatcherServiceProvider implements ServiceProviderInterface
     {
          if($this->module->isCli()) {
             $di->setShared('dispatcher', function() {
-                $dispatcher = new \Phalcon\Cli\Dispatcher();
+                $dispatcher = new CliDispatcher();
                 $dispatcher->setDefaultNamespace("{{rootNs}}\Tasks\\");
                 $dispatcher->setDefaultTask("hello");
                 return $dispatcher;
@@ -28,7 +29,7 @@ class DispatcherServiceProvider implements ServiceProviderInterface
         } elseif($this->module->isWeb()) {
             $di->setShared('dispatcher', function () {
                 $evtManager = $this->getShared('eventsManager');
-                $dispatcher = new \Phalcon\Mvc\Dispatcher();
+                $dispatcher = new MvcDispatcher();
                 $dispatcher->setEventsManager($evtManager);
                 $dispatcher->setDefaultNamespace("{{rootNs}}\Controllers\\");
                 return $dispatcher;

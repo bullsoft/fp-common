@@ -1,12 +1,13 @@
 namespace {{rootNs}}\Auth\Resources;
 use Ph\{Acl, Sys};
-use Phalcon\Acl\Resource as AclResource;
+use Phalcon\Acl\Component as AclResource;
 use PhalconPlus\Contracts\Auth\Access\ResourceAware;
 use {{rootNs}}\Controllers\{
     IndexController,
     UserController,
     ErrorController,
 };
+use function supername, ucfirst;
 
 class Actions implements ResourceAware
 {
@@ -14,10 +15,10 @@ class Actions implements ResourceAware
     {
         if(empty($path)) {
             $path = Sys::getPrimaryModuleDir()."/app/controllers";
-            $namespace = \supername(__NAMESPACE__, 2) . "\\Controllers\\";
+            $namespace = supername(__NAMESPACE__, 2) . "\\Controllers\\";
         } else {
             $tmp = basename($path);
-            $namespace = $namespace . \ucfirst($tmp) . "\\";
+            $namespace = $namespace . ucfirst($tmp) . "\\";
         }
         
         foreach(glob($path."/*") as $filename) {
@@ -33,7 +34,7 @@ class Actions implements ResourceAware
                 $methods = get_class_methods($classNameWithNs);
                 foreach($methods as $method) {
                     if(substr($method, -6) == 'Action') {
-                        Acl::addResource($resource, $method);
+                        Acl::addComponent($resource, $method);
                     }
                 }
             }

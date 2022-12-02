@@ -8,7 +8,7 @@ class Cli extends AppModule
 {
     public function registerAutoloaders()
     {
-        Di::get('loader')->registerNamespaces(array(
+        Di::get('loader')->setNamespaces(array(
             __NAMESPACE__.'\\Tasks'     => __DIR__.'/tasks/',
             __NAMESPACE__."\\Library"   => __DIR__.'/library/',
             __NAMESPACE__."\\Providers" => __DIR__.'/providers/',
