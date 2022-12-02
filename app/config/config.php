@@ -23,7 +23,7 @@ return [
             "level" => Logger::CUSTOM
         ]
     ],
-    'version' => "1.2.1",
+    'version' => "3.0.2",
 ];
 
 /* config.php ends here */
