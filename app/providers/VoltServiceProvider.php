@@ -23,9 +23,9 @@ class VoltServiceProvider implements ServiceProviderInterface
             }
             $volt = new Volt($view, App::di());
             $volt->setOptions(array(
-                "compiledAlways" => true,
-                "compiledSeparator" => "#",
-                "compiledPath" => $compiledPath,
+                "always" => true,
+                "separator" => "#",
+                "path" => $compiledPath,
             ));
             return $volt;
         });

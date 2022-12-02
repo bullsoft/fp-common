@@ -1,9 +1,9 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaData;
-
+use PhalconPlus\Db\Mysql as PlusMysql;
 use Ph\{Config, Di};
 
 class DatabaseServiceProvider implements ServiceProviderInterface
@@ -12,7 +12,7 @@ class DatabaseServiceProvider implements ServiceProviderInterface
     {
         // Register db write service
         $di->attempt('db', function() {
-            $mysql = new \PhalconPlus\Db\Mysql($this, "db");
+            $mysql = new PlusMysql($this, "db");
             $conn = $mysql->getConnection();
             $conn->setEventsManager(Di::get('eventsManager'));
             return $conn;
@@ -20,7 +20,7 @@ class DatabaseServiceProvider implements ServiceProviderInterface
 
         // Register db read service
         $di->attempt('dbRead', function() {
-            $mysql = new \PhalconPlus\Db\Mysql($this, "db");
+            $mysql = new PlusMysql($this, "db");
             $conn = $mysql->getConnection();
             $conn->setEventsManager(Di::get('eventsManager'));
             return $conn;

@@ -29,11 +29,11 @@ foreach($argv as $k => $arg) {
         } else {
             [$task, $action] = explode(":", $arg);
             $arguments['task'] = $task;
-            $arguments['action'] = $app->di()->helper->camelize($action, "-");
+            $arguments['action'] = $app->helper()->camelize($action, "-");
         }
     } elseif($k == 2) {
         if(!isset($arguments['action'])) {
-            $arguments['action'] = $app->di()->helper->camelize($arg, "-");
+            $arguments['action'] = $app->helper()->camelize($arg, "-");
         } else {
             $arguments['params'][] = $arg;    
         }

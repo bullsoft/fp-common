@@ -1,6 +1,7 @@
 namespace {{rootNs}}\Models;
 
 use App\Com\Protos\Exceptions\SystemBusyException;
+use PhalconPlus\Base\Model as PlusModel;
 
 use {{rootNs}}\Auth\User as AuthUser;
 use {{rootNs}}\Exceptions\UserNotExistsException;
@@ -13,10 +14,10 @@ use {{rootNs}}\Exceptions\UserAlreadyExistsException;
  *
  * 此文件由代码自动生成，代码依赖PhalconPlus和Zend\Code\Generator
  *
- * @namespace LightCloud\Uc\Models
+ * @namespace {{rootNs}}\Models
  * @table user
  */
-class UserModel extends \PhalconPlus\Base\Model
+class UserModel extends PlusModel
 {
 
     /**

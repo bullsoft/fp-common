@@ -1,8 +1,9 @@
 namespace {{rootNs}}\Providers;
 
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
-
+use Phalcon\Url as PhUrl;
+use Phalcon\Mvc\Url as MvcUrl;
 use Ph\{Config,};
 
 class UrlServiceProvider implements ServiceProviderInterface
@@ -11,11 +12,11 @@ class UrlServiceProvider implements ServiceProviderInterface
     {
         $di->setShared("url", function() {
             if (class_exists("\Phalcon\Url")) {  // for Phalcon 4.0
-                $url = new \Phalcon\Url();
+                $url = new PhUrl();
             } elseif(class_exists("\Phalcon\Mvc\Url")) {
-                $url = new \Phalcon\Mvc\Url();   // for Phalcon 3.x
+                $url = new MvcUrl($di->get("router"));   // for Phalcon 3.x, 5.x
             } else {
-                // nothing here
+                throw new \Exception('Class "Phalcon\Url" or "Phalcon\Mvc\Url" not exists');
             }
             $url->setBaseUri(Config::path('application.url'));
             $url->setStaticBaseUri(Config::path('application.staticUrl'));

@@ -1,8 +1,8 @@
 namespace {{rootNs}}\Tasks;
-use Ph\{
-    App,
-};
-class HelloTask extends \Phalcon\Cli\Task
+use Phalcon\Cli\Task;
+use Ph\{App, };
+
+class HelloTask extends Task
 {
     public function mainAction()
     {

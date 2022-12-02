@@ -1,11 +1,12 @@
 namespace {{rootNs}}\Controllers;
+use Phalcon\Mvc\Controller as PhController;
 
 use Ph\{
     Acl, Dispatcher,
 };
 use {{rootNs}}\Auth\User;
 
-class BaseController extends \Phalcon\Mvc\Controller
+class BaseController extends PhController
 {
     protected $controller;
     protected $action;

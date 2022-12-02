@@ -1,9 +1,10 @@
 namespace {{rootNs}}\Auth\Resources;
 
-use Phalcon\Acl\Resource as AclResource;
+use Phalcon\Acl\Component as AclResource;
 use PhalconPlus\Contracts\Auth\Access\ResourceAware;
 use Ph\Acl;
 use {{rootNs}}\Models\UserModel;
+use function supername, basename;
 
 class Models implements ResourceAware
 {
@@ -14,9 +15,9 @@ class Models implements ResourceAware
             if($className == 'BaseModel' || $className == 'ModelBase') {
                 continue;
             }
-            $classNameWithNs = \supername(__NAMESPACE__, 2) . "\\Models\\" . $className;
+            $classNameWithNs = supername(__NAMESPACE__, 2) . "\\Models\\" . $className;
             $resource = new AclResource($classNameWithNs);
-            Acl::addResource($resource, [
+            Acl::addComponent($resource, [
                 'view',
                 'list',
                 'update',

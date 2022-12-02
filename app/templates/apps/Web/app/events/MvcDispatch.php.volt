@@ -3,6 +3,7 @@ namespace {{rootNs}}\Events;
 use Phalcon\Events\Event;
 use Phalcon\Mvc\DispatcherInterface;
 use Phalcon\Mvc\Dispatcher;
+use Phalcon\Mvc\Dispatcher\Exception as DispatcherException;
 use Ph\{
     EventsManager,    
     Dispatcher as PhDispatcher,
@@ -112,8 +113,8 @@ class MvcDispatch implements EventAttachable, DispatchEvent
         //     $exceptionClass = \Phalcon\Dispatcher\Exception::class;
         // }
         switch ($exception->getCode()) {
-            case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
-            case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
+            case DispatcherException::EXCEPTION_HANDLER_NOT_FOUND:
+            case DispatcherException::EXCEPTION_ACTION_NOT_FOUND:
                 $dispatcher->forward(array(
                     'controller' => 'error',
                     'action'     => 'show404'

@@ -1,12 +1,14 @@
 date_default_timezone_set('Asia/Shanghai');
 ini_set("memory_limit", "4G");
 
+use PhalconPlus\Bootstrap;
 use PhalconPlus\Enum\RunMode;
+use Phalcon\Support\Version;
 
-$app = (new PhalconPlus\Bootstrap(__DIR__, "", RunMode::CLI))->app();
+$app = (new Bootstrap(__DIR__, "", RunMode::CLI))->app();
 
-$version = Phalcon\Version::getPart(
-    Phalcon\Version::VERSION_MAJOR
+$version = (new Version())->getPart(
+    Version::VERSION_MAJOR
 );
 
 $arguments = [];

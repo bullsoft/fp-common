@@ -5,6 +5,7 @@
 // $loader         -- the <Phalcon\Loader> object
 // $superapp       -- the <PhalconPlus\App\App> object
 // $def            -- the <PhalconPlus\App\Module\ModuleDef> object
+use Phalcon\Logger\Logger;
 
 return [
     'application' => [
@@ -16,11 +17,11 @@ return [
     "logger" => [
         [
             "filePath" => $def->getDir()."/var/log/debug.log",
-            "level" => \Phalcon\Logger::DEBUG
+            "level" => Logger::DEBUG
         ],
         [
             "filePath" => $def->getDir()."/var/log/all.log",
-            "level" => \Phalcon\Logger::SPECIAL
+            "level" => Logger::CUSTOM
         ]
     ],
     'db' => [
@@ -35,8 +36,8 @@ return [
         "retryInterval" => 200000, // 失败重试间隔200ms
         "retryTimes" => 5, //失败重试次数
         "options" => [
-            \PDO::ATTR_EMULATE_PREPARES => false,
-            // \PDO::ATTR_PERSISTENT => true,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            // PDO::ATTR_PERSISTENT => true,
         ],
     ],
     "redis" => [

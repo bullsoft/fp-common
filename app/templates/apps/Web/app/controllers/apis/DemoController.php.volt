@@ -1,6 +1,7 @@
 namespace {{rootNs}}\Controllers\Apis;
+use Phalcon\Mvc\Controller as PhController;
 
-class DemoController extends \Phalcon\Mvc\Controller
+class DemoController extends PhController
 {
     /**
      * @api
