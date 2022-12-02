@@ -149,6 +149,7 @@ class UserModel extends PlusModel
     public function initialize()
     {
         parent::initialize();
+        $this->setSource("user");
         $this->setWriteConnectionService("db");
         $this->setReadConnectionService("dbRead");
     }
@@ -283,15 +284,4 @@ class UserModel extends PlusModel
             'mtime' => 'mtime', 
         ];
     }
-
-    /**
-     * return related table name
-     */
-    public function getSource() : string
-    {
-        return 'user';
-    }
-
-
 }
-

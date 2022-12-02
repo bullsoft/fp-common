@@ -92,6 +92,11 @@ class ModelTask extends BaseTask
 
     public function findAction($argv)
     {
+        global $version;
+        if($version > 3) {
+            $argv = func_get_args();
+        }
+
         if(count($argv) < 2) {
             $this->cli->backgroundRed("请指定模块名称和模型名称！");
             exit(1);
@@ -104,13 +109,16 @@ class ModelTask extends BaseTask
 
         $model = new Model($m->def());
         $modelClassName = $model->getNamespace() . "\\" . $modelName;
-
+        if(substr($modelClassName, -5) !== "Model") {
+            $modelClassName .= "Model";
+        }
         if(!class_exists($modelClassName)) {
-            $this->cli->backgroundRed("致命错误：模型类不存在");
+            $this->cli->backgroundRed("致命错误：模型类<light_yellow>$modelClassName</light_yellow>不存在");
             exit(3);
         }
 
         $result = $modelClassName::find($cond);
+        $this->cli->info("开始查询 -> <light_yellow>$modelClassName</light_yellow>");
         if($result->count() == 0) {
             $this->cli->out("查询结果为空");
         } else {
