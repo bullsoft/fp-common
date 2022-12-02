@@ -1,5 +1,5 @@
 namespace {{rootNs}}\Controllers;
-use Ph\Router;
+use Plus\Router;
 
 class ErrorController extends BaseController
 {

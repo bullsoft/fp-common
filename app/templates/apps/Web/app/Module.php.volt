@@ -8,7 +8,7 @@ use PhalconPlus\App\Engine\Web as WebEngine;
 use {{rootNs}}\Providers\ServiceProvider;
 use {{rootNs}}\Events\EventProvider;
 
-use Ph\{Di, Config, App, Sys};
+use Plus\{Di, Config, App, Sys};
 
 class Module extends AppModule
 {

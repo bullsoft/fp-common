@@ -6,7 +6,7 @@ use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Reflection\ClassReflection;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\DocBlockGenerator;
-use Ph\{Di, Config, App};
+use Plus\{Di, Config, App};
 
 class Model
 {

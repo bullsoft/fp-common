@@ -2,7 +2,7 @@
 namespace PhalconPlus\DevTools\Tasks;
 
 use PhalconPlus\DevTools\Library\Process;
-use Ph\Sys;
+use Plus\Sys;
 
 class ModuleTask extends BaseTasK
 {

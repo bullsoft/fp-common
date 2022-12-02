@@ -4,7 +4,7 @@ use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
 use Phalcon\Cli\Dispatcher;
-use Ph\{Config,};
+use Plus\{Config,};
 
 class DispatcherServiceProvider implements ServiceProviderInterface
 {

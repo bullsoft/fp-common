@@ -5,7 +5,7 @@ use PhalconPlus\App\Module\AbstractModule as AppModule;
 use {{rootNs}}\Events\EventProvider;
 use {{rootNs}}\Providers\ServiceProvider;
 
-use Ph\{Di, Config, App, Sys};
+use Plus\{Di, Config, App, Sys};
 
 class Module extends AppModule
 {

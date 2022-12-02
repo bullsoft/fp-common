@@ -2,7 +2,7 @@ namespace {{rootNs}}\Auth\Resources;
 
 use Phalcon\Acl\Component as AclResource;
 use PhalconPlus\Contracts\Auth\Access\ResourceAware;
-use Ph\Acl;
+use Plus\Acl;
 use {{rootNs}}\Models\UserModel;
 use function supername, basename;
 

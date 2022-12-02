@@ -4,7 +4,7 @@ namespace PhalconPlus\DevTools\Providers;
 use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 
-use Ph\{Config,};
+use Plus\{Config,};
 
 class DispatcherServiceProvider implements ServiceProviderInterface
 {

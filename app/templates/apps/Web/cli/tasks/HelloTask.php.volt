@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Tasks;
 use Phalcon\Cli\Task;
-use Ph\{App, };
+use Plus\{App, };
 
 class HelloTask extends Task
 {

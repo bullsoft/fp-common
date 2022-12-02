@@ -1,5 +1,5 @@
 namespace {{rootNs}}\Auth\Resources;
-use Ph\{Acl, Sys};
+use Plus\{Acl, Sys};
 use Phalcon\Acl\Component as AclResource;
 use PhalconPlus\Contracts\Auth\Access\ResourceAware;
 use {{rootNs}}\Controllers\{

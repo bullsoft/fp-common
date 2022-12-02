@@ -1,7 +1,7 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
 use PhalconPlus\DevTools\Library\Model;
-use Ph\{
+use Plus\{
     App, Config
 };
 class ModelTask extends BaseTask

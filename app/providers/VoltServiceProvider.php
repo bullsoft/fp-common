@@ -5,7 +5,7 @@ use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Volt;
-use Ph\{Config, App, Sys};
+use Plus\{Config, App, Sys};
 
 class VoltServiceProvider implements ServiceProviderInterface
 {

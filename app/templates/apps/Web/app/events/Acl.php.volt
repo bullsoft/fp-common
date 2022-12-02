@@ -3,7 +3,7 @@ namespace {{rootNs}}\Events;
 use Phalcon\Events\Event;
 use PhalconPlus\Contracts\EventAttachable;
 use Phalcon\Acl\Adapter\AbstractAdapter;
-use Ph\{
+use Plus\{
     EventsManager,
     Acl as PhAcl,
     Di,

@@ -1,5 +1,6 @@
 namespace {{rootNs}}\Routes;
 use Phalcon\Mvc\Router\Group as RouterGroup;
+use Plus\App;
 
 class Bare extends RouterGroup
 {
@@ -19,7 +20,7 @@ class Bare extends RouterGroup
             'params'     => 3,
             'namespace' => "{{rootNs}}\\Controllers",
         ))->convert('action', function ($action) {
-            return lcfirst(\Phalcon\Text::camelize($action)); // foo-bar -> fooBar
+            return lcfirst(App::helper()->camelize($action)); // foo-bar -> fooBar
         });
     
         $this->add('/:controller', array(

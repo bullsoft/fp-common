@@ -4,7 +4,7 @@ namespace PhalconPlus\DevTools\Providers;
 use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 
-use Ph\{Config, App, };
+use Plus\{Config, App, };
 
 class RouterServiceProvider implements ServiceProviderInterface
 {

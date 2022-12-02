@@ -4,7 +4,7 @@ use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Url as PhUrl;
 use Phalcon\Mvc\Url as MvcUrl;
-use Ph\{Config,};
+use Plus\{Config,};
 
 class UrlServiceProvider implements ServiceProviderInterface
 {

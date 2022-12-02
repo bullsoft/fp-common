@@ -4,7 +4,7 @@ use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaData;
 use PhalconPlus\Db\Mysql as PlusMysql;
-use Ph\{Config, Di};
+use Plus\{Config, Di};
 
 class DatabaseServiceProvider implements ServiceProviderInterface
 {

@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Exceptions;
 
-use Ph\{
+use Plus\{
     Di, Log, Request, Response, App, AppEngine,
     FlashSession, Dispatcher, Annotations, View
 };

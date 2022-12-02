@@ -2,7 +2,7 @@ namespace {{rootNs}}\Events;
 
 use Phalcon\Events\Event;
 use PhalconPlus\App\App as SupApp;
-use Ph\{
+use Plus\{
     EventsManager, App, Di,
 };
 use PhalconPlus\Contracts\{

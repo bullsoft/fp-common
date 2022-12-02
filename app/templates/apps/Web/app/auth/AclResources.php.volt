@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Auth;
 use Phalcon\Acl\Role;
-use Ph\{Config, Acl};
+use Plus\{Config, Acl};
 use {{rootNs}}\Exceptions\Handler as ExceptionHandler;
 use {{rootNs}}\Auth\Resources\{
     Actions, Models

@@ -7,7 +7,7 @@ use PhalconPlus\Contracts\Auth\{
 use PhalconPlus\Auth\UserProvider;
 use {{rootNs}}\Models\UserModel;
 use {{rootNs}}\Auth\Model as AuthModel;
-use Ph\{
+use Plus\{
     Config, Session, Acl, Di, Security, Cookies,
 };
 use App\Com\Protos\ExceptionBase as BaseException;

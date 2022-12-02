@@ -3,7 +3,7 @@ namespace {{rootNs}}\Providers;
 use Phalcon\Di\DiInterface;
 use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
-use Ph\{Config, App, };
+use Plus\{Config, App, };
 
 class ServiceProvider implements ServiceProviderInterface
 {

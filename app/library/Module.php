@@ -2,7 +2,7 @@
 namespace PhalconPlus\DevTools\Library;
 use PhalconPlus\App\Module\ModuleDef;
 use League\Flysystem\Filesystem;
-use Ph\{App, Sys, };
+use Plus\{App, Sys, };
 class Module
 {
     protected $filesystem;
@@ -19,7 +19,7 @@ class Module
         foreach($items as $item) {
             if($item['type'] == "dir") {
                 $name = $item['basename'];
-                if(\Phalcon\Text::startsWith($name, ".")) {
+                if(App::helper()->startsWith($name, ".")) {
                     continue;
                 }
                 $def = $this->check($name);

@@ -4,7 +4,7 @@ use PhalconPlus\Base\SimpleRequest as SimpleRequest;
 use PhalconPlus\Base\SimpleResponse as SimpleResponse;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local as LocalAdapter;
-use Ph\App;
+use Plus\App;
 
 class RpcTask extends BaseTask
 {

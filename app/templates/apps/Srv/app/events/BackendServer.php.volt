@@ -3,7 +3,7 @@ namespace {{rootNs}}\Events;
 use Phalcon\Events\Event;
 use PhalconPlus\Rpc\Server\AbstractServer;
 use PhalconPlus\Contracts\EventAttachable;
-use Ph\EventsManager;
+use Plus\EventsManager;
 
 class BackendServer implements EventAttachable
 {

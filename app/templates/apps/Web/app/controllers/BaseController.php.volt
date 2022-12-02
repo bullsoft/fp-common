@@ -1,7 +1,7 @@
 namespace {{rootNs}}\Controllers;
 use Phalcon\Mvc\Controller as PhController;
 
-use Ph\{
+use Plus\{
     Acl, Dispatcher,
 };
 use {{rootNs}}\Auth\User;

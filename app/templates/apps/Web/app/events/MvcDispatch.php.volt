@@ -4,7 +4,7 @@ use Phalcon\Events\Event;
 use Phalcon\Mvc\DispatcherInterface;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Dispatcher\Exception as DispatcherException;
-use Ph\{
+use Plus\{
     EventsManager,    
     Dispatcher as PhDispatcher,
     Di, Acl, Request, Response, Session, Annotations,

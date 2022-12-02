@@ -2,7 +2,7 @@
 namespace PhalconPlus\DevTools;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
 use PhalconPlus\DevTools\Providers\ServiceProvider;
-use Ph\{Di, Config, App, Sys, };
+use Plus\{Di, Config, App, Sys, };
 
 class Cli extends AppModule
 {

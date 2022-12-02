@@ -1,7 +1,7 @@
 namespace {{rootNs}}\Events;
 
 use PhalconPlus\Contracts\EventAttachable;
-use Ph\{
+use Plus\{
     EventsManager,
     ModelsManager,
     Di,

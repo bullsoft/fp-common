@@ -10,7 +10,7 @@ use PhalconPlus\Logger\Processor\Msec as MsecProcessor;
 use Phalcon\Logger\Formatter\Line as LineFormatter;
 
 
-use Ph\{Config, };
+use Plus\{Config, };
 
 class LoggerServiceProvider implements ServiceProviderInterface
 {

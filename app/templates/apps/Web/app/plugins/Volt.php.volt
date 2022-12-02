@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Plugins;
 use Phalcon\Di\Injectable as DiInjectable;
-use Ph\{Security, };
+use Plus\{Security, };
 
 class Volt extends DiInjectable
 {

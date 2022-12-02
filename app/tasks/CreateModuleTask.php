@@ -1,6 +1,6 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
-use Ph\{Di, App};
+use Plus\{Di, App};
 use PhalconPlus\Enum\Sys;
 use PhalconPlus\Enum\RunMode;
 use League\Flysystem\Filesystem;

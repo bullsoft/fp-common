@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Events;
 
-use Ph\EventsManager;
+use Plus\EventsManager;
 use Phalcon\Events\Event;
 use PhalconPlus\Contracts\EventAttachable;
 

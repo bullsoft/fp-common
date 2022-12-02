@@ -8,7 +8,7 @@ use PhalconPlus\Logger\Processor\LogId as LogIdProcessor;
 use Phalcon\Logger\Formatter\Line as LineFormatter;
 
 
-use Ph\{Config,};
+use Plus\{Config,};
 
 class LoggerServiceProvider implements ServiceProviderInterface
 {

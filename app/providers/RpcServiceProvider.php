@@ -9,7 +9,7 @@ use PhalconPlus\RPC\Client\Adapter\{
 };
 use PhalconPlus\Base\ProtoBuffer;
 use App\Com\Protos\ExceptionBase;
-use Ph\{App, Log};
+use Plus\{App, Log};
 
 class RpcServiceProvider implements ServiceProviderInterface
 {

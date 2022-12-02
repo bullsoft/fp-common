@@ -4,7 +4,7 @@ use Phalcon\Events\Event;
 use Phalcon\Http\Response;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Application as PhApp;
-use Ph\{
+use Plus\{
     EventsManager, App, Acl, Log,
     Annotations, View, Session, Config, 
     Request, Security, Cookies,

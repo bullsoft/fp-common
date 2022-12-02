@@ -7,7 +7,7 @@ use Laminas\Code\Generator\MethodGenerator;
 use Phalcon\Db\Enum as DbEnum;
 use PhalconPlus\DevTools\Library\Model;
 
-use Ph\{
+use Plus\{
     App, Config, Sys,
 };
 

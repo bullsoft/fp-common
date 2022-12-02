@@ -4,7 +4,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use PhalconPlus\Enum\Sys;
 use PhalconPlus\DevTools\Library\Module;
-use Ph\{
+use Plus\{
     App, Di,
 };
 

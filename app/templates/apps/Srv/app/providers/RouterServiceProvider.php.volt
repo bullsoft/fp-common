@@ -5,7 +5,7 @@ use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
 use Phalcon\Mvc\Router as MvcRouter;
 use Phalcon\Cli\Router as CliRouter;
-use Ph\{Config, App, };
+use Plus\{Config, App, };
 
 class RouterServiceProvider implements ServiceProviderInterface
 {

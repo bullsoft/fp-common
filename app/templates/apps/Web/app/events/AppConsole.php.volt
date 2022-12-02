@@ -5,7 +5,7 @@ use Phalcon\Cli\Task;
 use Phalcon\Events\Event;
 use Phalcon\Cli\Dispatcher;
 use PhalconPlus\Contracts\EventAttachable;
-use Ph\EventsManager;
+use Plus\EventsManager;
 
 class AppConsole implements EventAttachable
 {

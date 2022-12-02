@@ -5,7 +5,7 @@ use Phalcon\Di\ServiceProviderInterface;
 use PhalconPlus\App\Module\AbstractModule as AppModule;
 use Phalcon\Cli\Dispatcher as CliDispatcher;
 use Phalcon\Mvc\Dispatcher as MvcDispatcher;
-use Ph\{Config,};
+use Plus\{Config,};
 
 class DispatcherServiceProvider implements ServiceProviderInterface
 {

@@ -7,7 +7,7 @@ use PhalconPlus\RPC\Client\Adapter\{
     Remote as RemoteRpc
 };
 
-use Ph\{Config, App, };
+use Plus\{Config, App, };
 
 class RpcServiceProvider implements ServiceProviderInterface
 {

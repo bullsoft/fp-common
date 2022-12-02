@@ -1,5 +1,6 @@
 namespace {{rootNs}}\Routes;
 use Phalcon\Mvc\Router\Group as RouterGroup;
+use Plus\App;
 
 class Api extends RouterGroup
 {
@@ -22,7 +23,7 @@ class Api extends RouterGroup
             'params'     => 3,
             'namespace' => "{{rootNs}}\\Controllers\\Apis",
         ])->convert('action', function ($action) {
-            return lcfirst(\Phalcon\Text::camelize($action));
+            return lcfirst(App::helper()->camelize($action));
         })->setName('api');
 
     }

@@ -1,6 +1,6 @@
 <?php
 namespace PhalconPlus\DevTools\Tasks;
-use Ph\{App, Sys};
+use Plus\{App, Sys};
 class CreateExceptionTask extends BaseTask
 {
     public function mainAction()
@@ -52,7 +52,7 @@ class CreateExceptionTask extends BaseTask
             $replacement = [];
             $replacement["ns"] = $ns;
             $replacement["namespace"] = rtrim($exceptionNS, "\\");
-            $replacement["className"] = \Phalcon\Text::camelize($className) . "Exception";
+            $replacement["className"] = App::helper()->camelize($className) . "Exception";
             $replacement["parentClassName"] = $parentClass;
             $replacement["code"] = $code;
 

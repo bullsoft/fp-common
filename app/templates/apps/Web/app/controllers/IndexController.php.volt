@@ -1,5 +1,5 @@
 namespace {{rootNs}}\Controllers;
-use Ph\{Log, App};
+use Plus\{Log, App};
 
 class IndexController extends BaseController
 {

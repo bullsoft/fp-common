@@ -7,7 +7,7 @@ use Phalcon\Storage\AdapterFactory;
 use Phalcon\Storage\SerializerFactory;
 use Phalcon\Session\Manager as SessionManager;
 use Phalcon\Support\Version;
-use Ph\{Config,};
+use Plus\{Config,};
 
 class SessionServiceProvider implements ServiceProviderInterface
 {

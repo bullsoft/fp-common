@@ -1,6 +1,6 @@
 namespace {{rootNs}}\Events;
 
-use Ph\{
+use Plus\{
     EventsManager,
     Router as PhRouter, Di,
 };
