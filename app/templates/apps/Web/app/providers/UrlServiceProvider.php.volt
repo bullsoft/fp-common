@@ -10,7 +10,7 @@ class UrlServiceProvider implements ServiceProviderInterface
 {
     public function register(DiInterface $di) : void
     {
-        $di->setShared("url", function() {
+        $di->setShared("url", function() use ($di) {
             if (class_exists("\Phalcon\Url")) {  // for Phalcon 4.0
                 $url = new PhUrl();
             } elseif(class_exists("\Phalcon\Mvc\Url")) {

@@ -71,6 +71,14 @@ return [
         'host' => "127.0.0.1",
         "port" => 6379
     ],
+    "demoRpc" => [
+        "debug" => false,
+        "serverUrl" => [
+            "http://localhost:8132",
+        ],
+        "serverType" => "simple",
+        "module" => "rpc",
+    ],
 ];
 
 /* config.php ends here */

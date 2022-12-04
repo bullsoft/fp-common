@@ -20,6 +20,7 @@ return [
             "Admin"   => ["Guests", "Members"],
             "Super"   => ["Guests", "Members", "Admin"],
         ],
+        "handler" => "simple",
     ],
     "view" => [
         "dir" => $def->getDir() . "/app/views/",
